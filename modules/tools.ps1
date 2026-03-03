@@ -9,11 +9,11 @@ function Menu-Tools {
     switch ($c) {
         "1" { 
             systeminfo
-            Read-Host "`nTekan ENTER untuk kembali"
+            Pause
         }
         "2" { 
             sfc /scannow
-            Read-Host "`nTekan ENTER untuk kembali"
+            Pause
         }
     }
 }
