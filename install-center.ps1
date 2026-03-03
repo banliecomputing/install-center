@@ -1,58 +1,65 @@
-# ===============================
-# INSTALL CENTER LOADER
-# ===============================
 
-$Repo = "https://raw.githubusercontent.com/banliecomputing/install-center/main"
-$CurrentVersion = "1.0"
-$LogFile = "$env:TEMP\install-center.log"
-
-# ===== LOG FUNCTION =====
-function Write-Log {
-    param($msg)
-    $time = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    "$time - $msg" | Out-File -Append $LogFile
-}
-
-function Pause {
-    Read-Host "`nTekan ENTER untuk kembali"
-}
+# =========================
+# INSTALL CENTER v2
+# =========================
 
 # ===== PASSWORD CHECK =====
 # SHA256 untuk: Sukses88
 $PasswordHash = "5ed701c5c57b79fc7abc8e596ecd1143065537266ab7817e5ac6c45973262590"
 
-$inputPass = Read-Host "Masukkan Password"
-$sha = [System.Security.Cryptography.SHA256]::Create()
-$hash = [BitConverter]::ToString(
-    $sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($inputPass))
-).Replace("-","").ToLower()
+function Test-Password {
+    $inputPassword = Read-Host "Enter Password" -AsSecureString
+    $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($inputPassword)
+    $plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
 
-if ($hash -ne $PasswordHash) {
-    Write-Host "Password salah!"
-    Pause
-    return
+    $hash = (New-Object Security.Cryptography.SHA256Managed).
+        ComputeHash([Text.Encoding]::UTF8.GetBytes($plain)) |
+        ForEach-Object { $_.ToString("x2") } -join ""
+
+    if ($hash -ne $PasswordHash) {
+        Write-Host "Wrong password." -ForegroundColor Red
+        Start-Sleep 2
+        return $false
+    }
+
+    return $true
 }
 
-Write-Log "Login berhasil"
+if (-not (Test-Password)) { return }
 
-# ===== UPDATE CHECK =====
-try {
-    $LatestVersion = irm "$Repo/version.txt"
-    if ($LatestVersion -ne $CurrentVersion) {
-        Write-Host "Versi baru tersedia: $LatestVersion"
-    }
-} catch {}
+# Load Modules Online
+$base = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules"
 
-# ===== LOAD MODULES =====
-$Modules = @("install.ps1","tools.ps1","tweak.ps1")
+irm "$base/windows-tools.ps1" | iex
+irm "$base/apps.ps1" | iex
+irm "$base/tweaks.ps1" | iex
+irm "$base/online-scripts.ps1" | iex
 
-foreach ($m in $Modules) {
-    try {
-        irm "$Repo/modules/$m" | iex
-    } catch {
-        Write-Host "Gagal load module $m"
-        Pause
-        return
+function Show-MainMenu {
+    while ($true) {
+        Clear-Host
+        Write-Host "===== INSTALL CENTER =====" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "1. Windows Tools"
+        Write-Host "2. Applications"
+        Write-Host "3. Tweaks"
+        Write-Host "4. Online Scripts"
+        Write-Host "0. Exit"
+        Write-Host ""
+
+        $choice = Read-Host "Select Menu"
+
+        switch ($choice) {
+            "1" { Show-WindowsTools }
+            "2" { Show-Apps }
+            "3" { Show-Tweaks }
+            "4" { Show-OnlineScripts }
+            "0" { return }
+            default {
+                Write-Host "Invalid choice"
+                Start-Sleep 1
+            }
+        }
     }
 }
 
