@@ -7,7 +7,13 @@ function Menu-Tools {
     $c = Read-Host "Pilih"
 
     switch ($c) {
-        "1" { systeminfo }
-        "2" { sfc /scannow }
+        "1" { 
+            systeminfo
+            Read-Host "`nTekan ENTER untuk kembali"
+        }
+        "2" { 
+            sfc /scannow
+            Read-Host "`nTekan ENTER untuk kembali"
+        }
     }
 }
