@@ -7,7 +7,7 @@ function Show-WindowsTools {
         Write-Host "1. System Information"
         Write-Host "2. Disk Cleanup"
         Write-Host "3. Check Disk (C:)"
-        Write-Host "4. Keyboard Tester Portable (C:)"
+        Write-Host "4. Keyboard Tester Portable"
         Write-Host "0. Back"
         Write-Host ""
 
@@ -31,14 +31,15 @@ function Show-WindowsTools {
             }
 
             "4" {
-            $url = "LINK_DOWNLOAD_EXE_KAMU"
-            $path = "$env:TEMP\keyboardtester.exe"
-            if (-not (Test-Path $path)) {
-            Write-Host "Downloading Keyboard Tester..."
-            irm $url -OutFile $path
-            }
-            Start-Process $path
-            Pause
+                $url = "https://github.com/banliecomputing/install-center/releases/download/v1.0/Keyboard.Test.Portable.exe"
+                $path = "$env:TEMP\keyboardtester.exe"
+                
+                if (-not (Test-Path $path)) {
+                    Write-Host "Downloading Keyboard Tester..."
+                    irm $url -OutFile $path
+                }
+                Start-Process $path
+                Pause
             }
             
             "0" { return }
