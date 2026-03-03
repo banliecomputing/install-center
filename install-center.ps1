@@ -15,7 +15,8 @@ function Write-Log {
 
 # ===== PASSWORD CHECK (SHA256 of: Archer123) =====
 # $PasswordHash = "3b5d5c3712955042212316173ccf37be80000000000000000000000000000000"  # sementara dummy
-$PasswordHash = "8f7b7dfd9a5c6c8f4e3f6b1e9c1f4a8b7d5e2c3f9a6b4d1e8c7f0a2b5d6e7f8a"
+$PasswordHash = "5ed701c5c57b79fc7abc8e596ecd1143065537266ab7817e5ac6c45973262590"
+
 
 $inputPass = Read-Host "Masukkan Password"
 $sha = [System.Security.Cryptography.SHA256]::Create()
