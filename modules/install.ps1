@@ -8,6 +8,7 @@ function Install-Chrome {
         Invoke-WebRequest $url -OutFile $file
         Start-Process $file -ArgumentList "/silent /install" -Wait
     }
+    Pause
 }
 
 function Install-VLC {
@@ -20,6 +21,7 @@ function Install-VLC {
         Invoke-WebRequest $url -OutFile $file
         Start-Process $file -ArgumentList "/S" -Wait
     }
+    Pause
 }
 
 function Menu-Install {
