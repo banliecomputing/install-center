@@ -41,7 +41,19 @@ function Show-WindowsTools {
                 Start-Process $path
                 Pause
             }
+
+            "5" {
+                try {
+                    $url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules/Auto-Driver-Updater-W10.ps1"
+                    irm $url | iex
+                }
+                catch {
+                    Write-Host "Failed to run Driver Updater" -ForegroundColor Red
+                }
             
+                Pause
+            }
+                        
             "0" { return }
         }
     }
