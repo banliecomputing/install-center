@@ -2,12 +2,12 @@ function Show-OnlineScripts {
 
     $scripts = @{
         "1" = @{
-            Name = "Microsoft Activation Script"
+            Name = "Microsoft Activation Script (massgrave)"
             Url  = "https://get.activated.win"
         }
         
         "1" = @{
-            Name = "Example Script"
+            Name = "Windows Tewak (christitus)"
             Url  = "http://christitus.com/win"
         }       
         
