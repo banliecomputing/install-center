@@ -13,10 +13,13 @@ function Write-Log {
     "$time - $msg" | Out-File -Append $LogFile
 }
 
-# ===== PASSWORD CHECK (SHA256 of: Archer123) =====
-# $PasswordHash = "3b5d5c3712955042212316173ccf37be80000000000000000000000000000000"  # sementara dummy
-$PasswordHash = "5ed701c5c57b79fc7abc8e596ecd1143065537266ab7817e5ac6c45973262590"
+function Pause {
+    Read-Host "`nTekan ENTER untuk kembali"
+}
 
+# ===== PASSWORD CHECK =====
+# SHA256 untuk: Sukses88
+$PasswordHash = "5ed701c5c57b79fc7abc8e596ecd1143065537266ab7817e5ac6c45973262590"
 
 $inputPass = Read-Host "Masukkan Password"
 $sha = [System.Security.Cryptography.SHA256]::Create()
@@ -26,7 +29,8 @@ $hash = [BitConverter]::ToString(
 
 if ($hash -ne $PasswordHash) {
     Write-Host "Password salah!"
-    exit
+    Pause
+    return
 }
 
 Write-Log "Login berhasil"
@@ -43,7 +47,13 @@ try {
 $Modules = @("install.ps1","tools.ps1","tweak.ps1")
 
 foreach ($m in $Modules) {
-    irm "$Repo/modules/$m" | iex
+    try {
+        irm "$Repo/modules/$m" | iex
+    } catch {
+        Write-Host "Gagal load module $m"
+        Pause
+        return
+    }
 }
 
 Show-MainMenu
