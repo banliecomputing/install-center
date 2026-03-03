@@ -12,6 +12,7 @@ function Show-OnlineScripts {
     }
 
     while ($true) {
+
         Clear-Host
         Write-Host "==== ONLINE SCRIPTS ====" -ForegroundColor Cyan
 
@@ -27,6 +28,8 @@ function Show-OnlineScripts {
         if ($choice -eq "0") { return }
 
         if ($scripts.ContainsKey($choice)) {
+
+            Write-Host "Running $($scripts[$choice].Name)..."
             irm $scripts[$choice].Url | iex
             Pause
         }
