@@ -12,8 +12,8 @@ function Show-OnlineScripts {
         }       
         
         "3" = @{
-            Name = "Example Script"
-            Url  = "https://example.com/script.ps1"
+            Name = "Auto Driver Updater W10 W11"
+            Url  = "https://raw.githubusercontent.com/banliecomputing/install-center/refs/heads/main/modules/Auto-Driver-Updater-W10.ps1"
         }
         
     }
