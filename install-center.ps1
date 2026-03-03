@@ -44,7 +44,6 @@ try {
     irm "$base/apps.ps1" | iex
     irm "$base/tweaks.ps1" | iex
     irm "$base/online-scripts.ps1" | iex
-    irm "$base/Auto-Driver-Updater-W10.ps1" | iex
 }
 catch {
     Write-Host "Failed to load modules." -ForegroundColor Red
@@ -64,7 +63,6 @@ function Show-MainMenu {
         Write-Host "2. Applications"
         Write-Host "3. Tweaks"
         Write-Host "4. Online Scripts"
-        Write-Host "5. Auto Driver Updater W10/W11.ps1"
         Write-Host "0. Exit"
         Write-Host ""
 
