@@ -1,7 +1,8 @@
 # =============================
-# INSTALL CENTER v2 FINAL
+# INSTALL CENTER v2 STABLE
 # =============================
 
+# HASH PASSWORD: Sukses88
 $PasswordHash = "5ed701c5c57b79fc7abc8e596ecd1143065537266ab7817e5ac6c45973262590"
 
 function Test-Password {
@@ -15,23 +16,27 @@ function Test-Password {
     $hashBytes = $sha.ComputeHash($bytes)
 
     $builder = New-Object System.Text.StringBuilder
-
     foreach ($b in $hashBytes) {
         [void]$builder.Append($b.ToString("x2"))
     }
 
     $hash = $builder.ToString()
 
-    if ($hash -ne $PasswordHash) {
-        Write-Host "Wrong password." -ForegroundColor Red
-        Start-Sleep 2
+    if ($hash -eq $PasswordHash) {
+        return $true
+    }
+    else {
         return $false
     }
-
-    return $true
 }
 
-# ===== Load Modules Online =====
+# ===== PASSWORD LOOP =====
+while (-not (Test-Password)) {
+    Write-Host "Wrong password. Try again." -ForegroundColor Red
+    Start-Sleep 1
+}
+
+# ===== LOAD MODULES =====
 $base = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules"
 
 try {
@@ -46,6 +51,7 @@ catch {
     return
 }
 
+# ===== MAIN MENU =====
 function Show-MainMenu {
 
     while ($true) {
