@@ -1,35 +1,21 @@
-function Menu-Tweak {
-    Clear-Host
-    Write-Host "=== TWEAK SYSTEM ==="
-    Write-Host "1. Show File Extension"
-    Write-Host "0. Kembali"
-    $c = Read-Host "Pilih"
+function Show-Tweaks {
+    while ($true) {
+        Clear-Host
+        Write-Host "==== WINDOWS TWEAKS ====" -ForegroundColor Magenta
+        Write-Host "1. Enable Dark Mode"
+        Write-Host "0. Back"
+        Write-Host ""
 
-    switch ($c) {
-        "1" {
-            Set-ItemProperty `
-            -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" `
-            -Name "HideFileExt" -Value 0
-            Pause
+        $choice = Read-Host "Select"
+
+        switch ($choice) {
+            "1" {
+                Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize `
+                -Name AppsUseLightTheme -Value 0
+                Write-Host "Dark Mode Enabled"
+                Pause
+            }
+            "0" { return }
         }
     }
-}
-
-function Show-MainMenu {
-    do {
-        Clear-Host
-        Write-Host "==== INSTALL CENTER ===="
-        Write-Host "1. Tools Windows"
-        Write-Host "2. Install Aplikasi"
-        Write-Host "3. Tweak System"
-        Write-Host "0. Keluar"
-        $m = Read-Host "Pilih"
-
-        switch ($m) {
-            "1" { Menu-Tools }
-            "2" { Menu-Install }
-            "3" { Menu-Tweak }
-        }
-
-    } while ($m -ne "0")
 }
