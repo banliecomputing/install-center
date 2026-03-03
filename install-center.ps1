@@ -1,15 +1,13 @@
+# =============================
+# INSTALL CENTER v2 FINAL
+# =============================
 
-# =========================
-# INSTALL CENTER v2
-# =========================
-
-# ===== PASSWORD CHECK =====
-# SHA256 untuk: Sukses88
 $PasswordHash = "5ed701c5c57b79fc7abc8e596ecd1143065537266ab7817e5ac6c45973262590"
 
 function Test-Password {
-    $inputPassword = Read-Host "Enter Password" -AsSecureString
-    $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($inputPassword)
+
+    $secure = Read-Host "Enter Password" -AsSecureString
+    $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
     $plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
 
     $hash = (New-Object Security.Cryptography.SHA256Managed).
@@ -27,16 +25,25 @@ function Test-Password {
 
 if (-not (Test-Password)) { return }
 
-# Load Modules Online
+# ===== Load Modules Online =====
 $base = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules"
 
-irm "$base/windows-tools.ps1" | iex
-irm "$base/apps.ps1" | iex
-irm "$base/tweaks.ps1" | iex
-irm "$base/online-scripts.ps1" | iex
+try {
+    irm "$base/windows-tools.ps1" | iex
+    irm "$base/apps.ps1" | iex
+    irm "$base/tweaks.ps1" | iex
+    irm "$base/online-scripts.ps1" | iex
+}
+catch {
+    Write-Host "Failed to load modules." -ForegroundColor Red
+    Pause
+    return
+}
 
 function Show-MainMenu {
+
     while ($true) {
+
         Clear-Host
         Write-Host "===== INSTALL CENTER =====" -ForegroundColor Cyan
         Write-Host ""
