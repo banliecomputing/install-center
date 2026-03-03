@@ -5,10 +5,17 @@ function Show-OnlineScripts {
             Name = "Microsoft Activation Script"
             Url  = "https://get.activated.win"
         }
-        "2" = @{
+        
+        "1" = @{
+            Name = "Example Script"
+            Url  = "http://christitus.com/win"
+        }       
+        
+        "3" = @{
             Name = "Example Script"
             Url  = "https://example.com/script.ps1"
         }
+        
     }
 
     while ($true) {
