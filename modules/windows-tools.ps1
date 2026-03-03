@@ -8,7 +8,7 @@ function Show-WindowsTools {
         Write-Host "2. Disk Cleanup"
         Write-Host "3. Check Disk (C:)"
         Write-Host "4. Keyboard Tester Portable"
-        Write-Host "5. Auto Driver Updater (Windows 10/11)"
+        Write-Host "5. Auto Driver Updater (Windows 10 11)"
         Write-Host "0. Back"
         Write-Host ""
 
