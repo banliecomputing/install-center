@@ -10,9 +10,17 @@ function Test-Password {
     $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
     $plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
 
-    $hash = (New-Object Security.Cryptography.SHA256Managed).
-        ComputeHash([Text.Encoding]::UTF8.GetBytes($plain)) |
-        ForEach-Object { $_.ToString("x2") } -join ""
+    $sha = New-Object System.Security.Cryptography.SHA256Managed
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes($plain)
+    $hashBytes = $sha.ComputeHash($bytes)
+
+    $builder = New-Object System.Text.StringBuilder
+
+    foreach ($b in $hashBytes) {
+        [void]$builder.Append($b.ToString("x2"))
+    }
+
+    $hash = $builder.ToString()
 
     if ($hash -ne $PasswordHash) {
         Write-Host "Wrong password." -ForegroundColor Red
@@ -22,8 +30,6 @@ function Test-Password {
 
     return $true
 }
-
-if (-not (Test-Password)) { return }
 
 # ===== Load Modules Online =====
 $base = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules"
