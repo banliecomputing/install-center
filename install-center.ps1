@@ -2,7 +2,7 @@
 # INSTALL CENTER LOADER
 # ===============================
 
-$Repo = "https://raw.githubusercontent.com/USERNAME/install-center/main"
+$Repo = "https://raw.githubusercontent.com/banliecomputing/install-center/main"
 $CurrentVersion = "1.0"
 $LogFile = "$env:TEMP\install-center.log"
 
