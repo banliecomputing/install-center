@@ -7,6 +7,7 @@ function Show-Apps {
         Write-Host "1. Install Google Chrome"
         Write-Host "2. Install 7zip"
         Write-Host "3. Install VLC"
+        Write-Host "4. Acrobat Reader"
         Write-Host "0. Back"
         Write-Host ""
 
@@ -29,6 +30,11 @@ function Show-Apps {
                 Pause
             }
 
+            "4" {
+                winget Adobe.Acrobat.Reader.64-bit -e --silent
+                Pause
+            }
+            
             "0" { return }
         }
     }
