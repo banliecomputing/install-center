@@ -32,7 +32,7 @@ function Show-Apps {
             }
 
             "4" {
-                winget install Adobe.Acrobat.Reader.32-bit -e --silent
+                winget install Adobe.Acrobat.Reader.64-bit -e --id --silent
                 Pause
             }
             
