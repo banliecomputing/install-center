@@ -1,23 +1,32 @@
 function Install-App($wingetID,$url,$file){
 
+Write-Host ""
+Write-Host "Preparing install: $wingetID" -ForegroundColor Cyan
+
 if(Test-Winget){
 
-Write-Host ""
-Write-Host "Installing using Winget..." -ForegroundColor Cyan
-winget install -e --id $wingetID --silent
+Write-Host "Installing using Winget..." -ForegroundColor Green
+winget install -e --id $wingetID --silent --accept-package-agreements --accept-source-agreements
 
 }else{
 
-Write-Host ""
+if(!$url){
+Write-Host "No download URL provided." -ForegroundColor Red
+return
+}
+
 Write-Host "Winget not found. Downloading installer..." -ForegroundColor Yellow
 
-$temp="$env:TEMP$file"
+$temp="$env:TEMP\$file"
 
 Invoke-WebRequest $url -OutFile $temp
 
+Write-Host "Running installer..." -ForegroundColor Green
 Start-Process $temp -Wait
 
 }
+
+Write-Host "Finished installing $wingetID" -ForegroundColor Green
 
 }
 
@@ -92,11 +101,14 @@ PauseMenu
 
 "8" {
 
-Install-App "Google.Chrome" ""
-Install-App "7zip.7zip" ""
-Install-App "VideoLAN.VLC" ""
-Install-App "RARLab.WinRAR" ""
-Install-App "AIMP.AIMP" ""
+Write-Host ""
+Write-Host "Installing ALL Basic Apps..." -ForegroundColor Cyan
+
+Install-App "Google.Chrome" "https://dl.google.com/chrome/install/latest/chrome/install.exe" "chrome.exe"
+Install-App "7zip.7zip" "https://www.7-zip.org/a/7z2301-x64.exe" "7zip.exe"
+Install-App "VideoLAN.VLC" "https://get.videolan.org/vlc/last/win64/vlc-win64.exe" "vlc.exe"
+Install-App "RARLab.WinRAR" "https://www.rarlab.com/rar/winrar-x64.exe" "winrar.exe"
+Install-App "AIMP.AIMP" "https://www.aimp.ru/?do=download.file&id=2" "aimp.exe"
 
 PauseMenu
 
