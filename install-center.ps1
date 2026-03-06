@@ -1,14 +1,14 @@
-# =============================
+# ============================================
 
-# BANLIE INSTALL CENTER v3
+# BANLIE INSTALL CENTER v4
 
 # BanlieComp @ 2026
 
-# =============================
+# ============================================
 
 $base = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules"
 
-# ===== UI FUNCTIONS =====
+# ===== UI =====
 
 function Show-Logo {
 
@@ -25,31 +25,57 @@ Write-Host "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝
 Write-Host ""
 Write-Host "BanlieComp @ 2026" -ForegroundColor Yellow
 Write-Host ""
-
 }
 
+# ===== SYSTEM INFO =====
+
 function Show-SystemInfo {
+
+try {
 
 $cpu = (Get-WmiObject Win32_Processor).Name
 $ram = [math]::Round((Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory /1GB,2)
 $os = (Get-WmiObject Win32_OperatingSystem).Caption
-$time = Get-Date -Format "dddd, dd MMMM yyyy  HH:mm:ss"
+$disk = Get-WmiObject Win32_LogicalDisk -Filter "DeviceID='C:'"
+$free = [math]::Round($disk.FreeSpace/1GB,1)
 
-Write-Host "===== SYSTEM INFO =====" -ForegroundColor Green
+}
+catch {
+
+$cpu="Unknown"
+$ram="?"
+$os="Windows"
+$free="?"
+
+}
+
+$time = Get-Date -Format "dd MMM yyyy  HH:mm:ss"
+
+Write-Host "===== SYSTEM =====" -ForegroundColor Green
 Write-Host "Time : $time"
 Write-Host "OS   : $os"
 Write-Host "CPU  : $cpu"
 Write-Host "RAM  : $ram GB"
+Write-Host "Disk : $free GB free"
 Write-Host ""
+}
+
+# ===== WINGET CHECK =====
+
+function Test-Winget {
+
+$winget = Get-Command winget -ErrorAction SilentlyContinue
+
+if ($winget) {
+return $true
+}
+else {
+return $false
+}
 
 }
 
-function PauseMenu {
-Write-Host ""
-Read-Host "Press ENTER to return"
-}
-
-# ===== LOAD MODULES =====
+# ===== MODULE LOADER =====
 
 try {
 
@@ -57,7 +83,8 @@ $modules = @(
 "windows-tools.ps1",
 "apps.ps1",
 "tweaks.ps1",
-"online-scripts.ps1"
+"online-scripts.ps1",
+"diagnostic.ps1"
 )
 
 foreach ($m in $modules) {
@@ -67,7 +94,7 @@ irm "$base/$m" | iex
 }
 catch {
 
-Write-Host "Failed loading modules." -ForegroundColor Red
+Write-Host "Module loading failed." -ForegroundColor Red
 Pause
 return
 
@@ -82,12 +109,13 @@ while ($true) {
 Show-Logo
 Show-SystemInfo
 
-Write-Host "========== MAIN MENU ==========" -ForegroundColor White
+Write-Host "=========== MENU ===========" -ForegroundColor White
 Write-Host ""
 Write-Host "1. Windows Tools" -ForegroundColor Cyan
-Write-Host "2. Applications" -ForegroundColor Magenta
-Write-Host "3. Tweaks" -ForegroundColor Yellow
+Write-Host "2. Applications Installer" -ForegroundColor Magenta
+Write-Host "3. Tweaks & Optimization" -ForegroundColor Yellow
 Write-Host "4. Online Scripts" -ForegroundColor Red
+Write-Host "5. Hardware Diagnostic" -ForegroundColor Green
 Write-Host ""
 Write-Host "0. Exit"
 Write-Host ""
@@ -97,15 +125,20 @@ $choice = Read-Host "Select Menu"
 switch ($choice) {
 
 "1" { Show-WindowsTools }
+
 "2" { Show-Apps }
+
 "3" { Show-Tweaks }
+
 "4" { Show-OnlineScripts }
+
+"5" { Show-Diagnostic }
 
 "0" { return }
 
 default {
 
-Write-Host "Invalid selection"
+Write-Host "Invalid choice"
 Start-Sleep 1
 
 }
