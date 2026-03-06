@@ -60,7 +60,7 @@ function Show-MainMenu {
         Write-Host "   ======== INSTALL CENTER ========" -ForegroundColor Cyan
         Write-Host "   "
         Write-Host "   1. Windows Tools" -ForegroundColor DarkCyan
-        Write-Host "   2. Applications" -ForegroundColor DarkMagenta
+        Write-Host "   2. Applications" -ForegroundColor Magenta
         Write-Host "   3. Tweaks" -ForegroundColor DarkYellow
         Write-Host "   4. Online Scripts" -ForegroundColor DarkRed
         Write-Host "   ==========================" -ForegroundColor Cyan
