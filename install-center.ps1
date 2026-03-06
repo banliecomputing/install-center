@@ -57,12 +57,13 @@ function Show-MainMenu {
     while ($true) {
 
         Clear-Host
-        Write-Host "   ===== INSTALL CENTER =====" -ForegroundColor Cyan
+        Write-Host "   ======== INSTALL CENTER ========" -ForegroundColor Cyan
         Write-Host "   "
-        Write-Host "   1. Windows Tools"
-        Write-Host "   2. Applications"
-        Write-Host "   3. Tweaks"
-        Write-Host "   4. Online Scripts"
+        Write-Host "   1. Windows Tools" -ForegroundColor Blue
+        Write-Host "   2. Applications" -ForegroundColor Magenta
+        Write-Host "   3. Tweaks" -ForegroundColor Yellow
+        Write-Host "   4. Online Scripts" -ForegroundColor Red
+        Write-Host "   ==========================" -ForegroundColor Cyan
         Write-Host "   0. Exit"
         Write-Host ""
 
