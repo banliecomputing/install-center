@@ -2,12 +2,14 @@ function Install-App($wingetID,$url,$file){
 
 if(Test-Winget){
 
-Write-Host "Installing via Winget..." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Installing using Winget..." -ForegroundColor Cyan
 winget install -e --id $wingetID --silent
 
 }else{
 
-Write-Host "Downloading installer..." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Winget not found. Downloading installer..." -ForegroundColor Yellow
 
 $temp="$env:TEMP$file"
 
@@ -19,29 +21,29 @@ Start-Process $temp -Wait
 
 }
 
-function Show-Apps{
+function Show-Apps {
 
-while($true){
+while ($true) {
 
 Show-Header
 
-Write-Host "APPLICATION INSTALLER"
+Write-Host "APPLICATION INSTALLER" -ForegroundColor Green
 Write-Host ""
 
-Write-Host "BROWSER"
-Write-Host "1. Google Chrome"
+Write-Host "==== Browser Windows ====" -ForegroundColor Yellow
+Write-Host "1. Install Google Chrome"
 Write-Host "2. Mozilla Firefox"
 Write-Host ""
 
-Write-Host "TOOLS"
-Write-Host "3. 7zip"
+Write-Host "==== Tools ====" -ForegroundColor Yellow
+Write-Host "3. Install 7zip"
 Write-Host "4. Acrobat Reader"
-Write-Host "5. WinRAR"
+Write-Host "5. WinRAR LAB"
 Write-Host ""
 
-Write-Host "MEDIA"
-Write-Host "6. AIMP Player"
-Write-Host "7. VLC Player"
+Write-Host "==== Media Viewer ====" -ForegroundColor Yellow
+Write-Host "6. Aimp Player"
+Write-Host "7. Install VLC"
 Write-Host ""
 
 Write-Host "8. Install ALL Basic Apps"
@@ -49,25 +51,46 @@ Write-Host ""
 Write-Host "0. Back"
 Write-Host ""
 
-$choice=Read-Host "Select"
+$choice = Read-Host "Select"
 
-switch($choice){
+switch ($choice) {
 
-"1"{Install-App "Google.Chrome" "https://dl.google.com/chrome/install/latest/chrome/install.exe" "chrome.exe"}
+"1" {
+Install-App "Google.Chrome" "https://dl.google.com/chrome/install/latest/chrome/install.exe" "chrome.exe"
+PauseMenu
+}
 
-"2"{Install-App "Mozilla.Firefox" "https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US" "firefox.exe"}
+"2" {
+Install-App "Mozilla.Firefox" "https://download.mozilla.org/?product=firefox-latest&os=win&lang=en-US" "firefox.exe"
+PauseMenu
+}
 
-"3"{Install-App "7zip.7zip" "https://www.7-zip.org/a/7z2301-x64.exe" "7zip.exe"}
+"3" {
+Install-App "7zip.7zip" "https://www.7-zip.org/a/7z2301-x64.exe" "7zip.exe"
+PauseMenu
+}
 
-"4"{Install-App "Adobe.Acrobat.Reader.64-bit" "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/AcroRdrDCx64.exe" "reader.exe"}
+"4" {
+Install-App "Adobe.Acrobat.Reader.64-bit" "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/AcroRdrDCx64.exe" "reader.exe"
+PauseMenu
+}
 
-"5"{Install-App "RARLab.WinRAR" "https://www.rarlab.com/rar/winrar-x64.exe" "winrar.exe"}
+"5" {
+Install-App "RARLab.WinRAR" "https://www.rarlab.com/rar/winrar-x64.exe" "winrar.exe"
+PauseMenu
+}
 
-"6"{Install-App "AIMP.AIMP" "https://www.aimp.ru/?do=download.file&id=2" "aimp.exe"}
+"6" {
+Install-App "AIMP.AIMP" "https://www.aimp.ru/?do=download.file&id=2" "aimp.exe"
+PauseMenu
+}
 
-"7"{Install-App "VideoLAN.VLC" "https://get.videolan.org/vlc/last/win64/vlc-win64.exe" "vlc.exe"}
+"7" {
+Install-App "VideoLAN.VLC" "https://get.videolan.org/vlc/last/win64/vlc-win64.exe" "vlc.exe"
+PauseMenu
+}
 
-"8"{
+"8" {
 
 Install-App "Google.Chrome" ""
 Install-App "7zip.7zip" ""
@@ -75,13 +98,13 @@ Install-App "VideoLAN.VLC" ""
 Install-App "RARLab.WinRAR" ""
 Install-App "AIMP.AIMP" ""
 
-}
-
-"0"{return}
-
-}
-
 PauseMenu
+
+}
+
+"0" { return }
+
+}
 
 }
 
