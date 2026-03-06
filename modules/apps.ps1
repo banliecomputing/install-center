@@ -8,6 +8,7 @@ function Show-Apps {
         Write-Host "2. Install 7zip"
         Write-Host "3. Install VLC"
         Write-Host "4. Acrobat Reader"
+        Write-Host "5. WinRAR LAB"
         Write-Host "0. Back"
         Write-Host ""
 
@@ -31,9 +32,15 @@ function Show-Apps {
             }
 
             "4" {
-                winget Adobe.Acrobat.Reader.64-bit -e --silent
+                winget Adobe.Acrobat.Reader.32-bit -e --silent
                 Pause
             }
+            
+            "5" {
+                winget RARLab.WinRARt -e --silent
+                Pause
+            }
+       
             
             "0" { return }
         }
