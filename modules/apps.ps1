@@ -37,7 +37,7 @@ function Show-Apps {
             }
             
             "5" {
-                winget RARLab.WinRARt -e --silent
+                winget install -e --id RARLab.WinRAR
                 Pause
             }
        
