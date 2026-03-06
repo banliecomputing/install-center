@@ -2,7 +2,7 @@
 # INSTALL CENTER v2 STABLE
 # =============================
 
-# HASH PASSWORD: Sukses88
+# HASH PASSWORD: Sukse
 $PasswordHash = "5ed701c5c57b79fc7abc8e596ecd1143065537266ab7817e5ac6c45973262590"
 
 function Test-Password {
@@ -57,13 +57,13 @@ function Show-MainMenu {
     while ($true) {
 
         Clear-Host
-        Write-Host "===== INSTALL CENTER =====" -ForegroundColor Cyan
-        Write-Host ""
-        Write-Host "1. Windows Tools"
-        Write-Host "2. Applications"
-        Write-Host "3. Tweaks"
-        Write-Host "4. Online Scripts"
-        Write-Host "0. Exit"
+        Write-Host "   ===== INSTALL CENTER =====" -ForegroundColor Cyan
+        Write-Host "   "
+        Write-Host "   1. Windows Tools"
+        Write-Host "   2. Applications"
+        Write-Host "   3. Tweaks"
+        Write-Host "   4. Online Scripts"
+        Write-Host "   0. Exit"
         Write-Host ""
 
         $choice = Read-Host "Select Menu"
