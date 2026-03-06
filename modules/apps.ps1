@@ -32,12 +32,12 @@ function Show-Apps {
             }
 
             "4" {
-                winget Adobe.Acrobat.Reader.32-bit -e --silent
+                winget install Adobe.Acrobat.Reader.32-bit -e --silent
                 Pause
             }
             
             "5" {
-                winget install -e --id RARLab.WinRAR
+                winget install RARLab.WinRAR -e --id
                 Pause
             }
        
