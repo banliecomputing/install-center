@@ -1,86 +1,119 @@
 # =============================
-# INSTALL CENTER v2 STABLE
+
+# BANLIE INSTALL CENTER v3
+
+# BanlieComp @ 2026
+
 # =============================
 
-# HASH PASSWORD: Sukse
-$PasswordHash = "5ed701c5c57b79fc7abc8e596ecd1143065537266ab7817e5ac6c45973262590"
+$base = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules"
 
-function Test-Password {
+# ===== UI FUNCTIONS =====
 
-    $secure = Read-Host "Enter Password" -AsSecureString
-    $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secure)
-    $plain = [Runtime.InteropServices.Marshal]::PtrToStringAuto($ptr)
+function Show-Logo {
 
-    $sha = New-Object System.Security.Cryptography.SHA256Managed
-    $bytes = [System.Text.Encoding]::UTF8.GetBytes($plain)
-    $hashBytes = $sha.ComputeHash($bytes)
+Clear-Host
 
-    $builder = New-Object System.Text.StringBuilder
-    foreach ($b in $hashBytes) {
-        [void]$builder.Append($b.ToString("x2"))
-    }
+Write-Host ""
+Write-Host "██████╗  █████╗ ███╗   ██╗██╗     ██╗███████╗" -ForegroundColor Cyan
+Write-Host "██╔══██╗██╔══██╗████╗  ██║██║     ██║██╔════╝" -ForegroundColor Cyan
+Write-Host "██████╔╝███████║██╔██╗ ██║██║     ██║█████╗  " -ForegroundColor Cyan
+Write-Host "██╔══██╗██╔══██║██║╚██╗██║██║     ██║██╔══╝  " -ForegroundColor Cyan
+Write-Host "██████╔╝██║  ██║██║ ╚████║███████╗██║███████╗" -ForegroundColor Cyan
+Write-Host "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝╚══════╝" -ForegroundColor Cyan
 
-    $hash = $builder.ToString()
+Write-Host ""
+Write-Host "BanlieComp @ 2026" -ForegroundColor Yellow
+Write-Host ""
 
-    if ($hash -eq $PasswordHash) {
-        return $true
-    }
-    else {
-        return $false
-    }
 }
 
-# ===== PASSWORD LOOP =====
-while (-not (Test-Password)) {
-    Write-Host "Wrong password. Try again." -ForegroundColor Red
-    Start-Sleep 1
+function Show-SystemInfo {
+
+$cpu = (Get-WmiObject Win32_Processor).Name
+$ram = [math]::Round((Get-WmiObject Win32_ComputerSystem).TotalPhysicalMemory /1GB,2)
+$os = (Get-WmiObject Win32_OperatingSystem).Caption
+$time = Get-Date -Format "dddd, dd MMMM yyyy  HH:mm:ss"
+
+Write-Host "===== SYSTEM INFO =====" -ForegroundColor Green
+Write-Host "Time : $time"
+Write-Host "OS   : $os"
+Write-Host "CPU  : $cpu"
+Write-Host "RAM  : $ram GB"
+Write-Host ""
+
+}
+
+function PauseMenu {
+Write-Host ""
+Read-Host "Press ENTER to return"
 }
 
 # ===== LOAD MODULES =====
-$base = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules"
 
 try {
-    irm "$base/windows-tools.ps1" | iex
-    irm "$base/apps.ps1" | iex
-    irm "$base/tweaks.ps1" | iex
-    irm "$base/online-scripts.ps1" | iex
+
+$modules = @(
+"windows-tools.ps1",
+"apps.ps1",
+"tweaks.ps1",
+"online-scripts.ps1"
+)
+
+foreach ($m in $modules) {
+irm "$base/$m" | iex
+}
+
 }
 catch {
-    Write-Host "Failed to load modules." -ForegroundColor Red
-    Pause
-    return
+
+Write-Host "Failed loading modules." -ForegroundColor Red
+Pause
+return
+
 }
 
 # ===== MAIN MENU =====
+
 function Show-MainMenu {
 
-    while ($true) {
+while ($true) {
 
-        Clear-Host
-        Write-Host "   ======== INSTALL CENTER ========" -ForegroundColor Cyan
-        Write-Host "   "
-        Write-Host "   1. Windows Tools" -ForegroundColor DarkCyan
-        Write-Host "   2. Applications" -ForegroundColor Magenta
-        Write-Host "   3. Tweaks" -ForegroundColor DarkYellow
-        Write-Host "   4. Online Scripts" -ForegroundColor DarkRed
-        Write-Host "   ==========================" -ForegroundColor Cyan
-        Write-Host "   0. Exit"
-        Write-Host ""
+Show-Logo
+Show-SystemInfo
 
-        $choice = Read-Host "Select Menu"
+Write-Host "========== MAIN MENU ==========" -ForegroundColor White
+Write-Host ""
+Write-Host "1. Windows Tools" -ForegroundColor Cyan
+Write-Host "2. Applications" -ForegroundColor Magenta
+Write-Host "3. Tweaks" -ForegroundColor Yellow
+Write-Host "4. Online Scripts" -ForegroundColor Red
+Write-Host ""
+Write-Host "0. Exit"
+Write-Host ""
 
-        switch ($choice) {
-            "1" { Show-WindowsTools }
-            "2" { Show-Apps }
-            "3" { Show-Tweaks }
-            "4" { Show-OnlineScripts }
-            "0" { return }
-            default {
-                Write-Host "Invalid choice"
-                Start-Sleep 1
-            }
-        }
-    }
+$choice = Read-Host "Select Menu"
+
+switch ($choice) {
+
+"1" { Show-WindowsTools }
+"2" { Show-Apps }
+"3" { Show-Tweaks }
+"4" { Show-OnlineScripts }
+
+"0" { return }
+
+default {
+
+Write-Host "Invalid selection"
+Start-Sleep 1
+
+}
+
+}
+
+}
+
 }
 
 Show-MainMenu
