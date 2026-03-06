@@ -9,6 +9,7 @@ function Show-Apps {
         Write-Host "3. Install VLC"
         Write-Host "4. Acrobat Reader"
         Write-Host "5. WinRAR LAB"
+        Write-Host "6. Aimp Player"
         Write-Host "0. Back"
         Write-Host ""
 
@@ -40,7 +41,11 @@ function Show-Apps {
                 winget install RARLab.WinRAR -e --id
                 Pause
             }
-       
+            
+            "6" {
+                 winget install -e --id AIMP.AIMP
+                Pause
+            }       
             
             "0" { return }
         }
