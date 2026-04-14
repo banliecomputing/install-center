@@ -40,6 +40,16 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
 
     # Coba gunakan Winget terlebih dahulu
     if(Test-Winget){
+        
+        # Mengecek apakah aplikasi sudah terinstall di sistem menggunakan Winget List
+        Write-Host "Mengecek status instalasi..." -ForegroundColor DarkGray
+        $checkInstalled = winget list -e --id $wingetID --accept-source-agreements 2>$null
+        
+        if ($checkInstalled -match $wingetID) {
+            Write-Host "=> Aplikasi $wingetID sudah terinstall di sistem. Melewati proses." -ForegroundColor Green
+            return # Langsung keluar dari fungsi dan lanjut ke aplikasi berikutnya
+        }
+
         Write-Host "Installing using Winget..." -ForegroundColor Green
         winget install -e --id $wingetID --silent --accept-package-agreements --accept-source-agreements
         
