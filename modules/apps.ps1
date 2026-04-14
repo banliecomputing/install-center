@@ -85,7 +85,7 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
     Write-Host "Finished processing $wingetID" -ForegroundColor Green
 }
 
-# Menu Aplikasi
+# Menu Aplikasi dengan fitur Multiple Selection
 function Show-Apps {
 
     # Pengecekan awal, jika tidak ada winget, paksa install
@@ -93,6 +93,17 @@ function Show-Apps {
         Install-WingetForce
         Start-Sleep -Seconds 3 
     }
+
+    # Database Aplikasi
+    $appList = @(
+        [PSCustomObject]@{ Id = 1; Name = "Google Chrome"; WingetID = "Google.Chrome"; Url = "https://dl.google.com/chrome/install/latest/chrome/install.exe"; File = "chrome.exe"; Silent = "--silent" },
+        [PSCustomObject]@{ Id = 2; Name = "Mozilla Firefox"; WingetID = "Mozilla.Firefox"; Url = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"; File = "firefox.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 3; Name = "7zip"; WingetID = "7zip.7zip"; Url = "https://www.7-zip.org/a/7z2301-x64.exe"; File = "7zip.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 4; Name = "Acrobat Reader"; WingetID = "Adobe.Acrobat.Reader.64-bit"; Url = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/AcroRdrDCx64.exe"; File = "reader.exe"; Silent = "/sAll" },
+        [PSCustomObject]@{ Id = 5; Name = "WinRAR"; WingetID = "RARLab.WinRAR"; Url = "https://www.rarlab.com/rar/winrar-x64.exe"; File = "winrar.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 6; Name = "Aimp Player"; WingetID = "AIMP.AIMP"; Url = "https://www.aimp.ru/?do=download.file&id=2"; File = "aimp.exe"; Silent = "/AUTO" },
+        [PSCustomObject]@{ Id = 7; Name = "VLC Player"; WingetID = "VideoLAN.VLC"; Url = "https://get.videolan.org/vlc/last/win64/vlc-win64.exe"; File = "vlc.exe"; Silent = "/L=1033 /S" }
+    )
 
     while ($true) {
 
@@ -102,80 +113,69 @@ function Show-Apps {
         Write-Host ""
 
         Write-Host "==== Browser Windows ====" -ForegroundColor Yellow
-        Write-Host "1. Install Google Chrome"
-        Write-Host "2. Install Mozilla Firefox"
+        Write-Host " [1] Install Google Chrome"
+        Write-Host " [2] Install Mozilla Firefox"
         Write-Host ""
 
         Write-Host "==== Tools ====" -ForegroundColor Yellow
-        Write-Host "3. Install 7zip"
-        Write-Host "4. Install Acrobat Reader"
-        Write-Host "5. Install WinRAR"
+        Write-Host " [3] Install 7zip"
+        Write-Host " [4] Install Acrobat Reader"
+        Write-Host " [5] Install WinRAR"
         Write-Host ""
 
         Write-Host "==== Media Viewer ====" -ForegroundColor Yellow
-        Write-Host "6. Install Aimp Player"
-        Write-Host "7. Install VLC Player"
+        Write-Host " [6] Install Aimp Player"
+        Write-Host " [7] Install VLC Player"
         Write-Host ""
+        
+        Write-Host "--------------------------------------------------------"
+        Write-Host " [A] Install SEMUA Aplikasi" -ForegroundColor Green
+        Write-Host " [0] Kembali ke Menu Utama" -ForegroundColor Red
+        Write-Host "========================================================" -ForegroundColor Yellow
 
-        Write-Host "8. Install ALL Basic Apps"
-        Write-Host ""
-        Write-Host "0. Back"
-        Write-Host ""
+        $userInput = Read-Host "`nMasukkan pilihan Anda (Contoh: '1', '1,3,4', 'A', atau '0')"
 
-        $choice = Read-Host "Select"
+        if ($userInput -eq '0') { return }
 
-        switch ($choice) {
+        $selectedApps = New-Object System.Collections.ArrayList
 
-            "1" {
-                Install-App "Google.Chrome" "https://dl.google.com/chrome/install/latest/chrome/install.exe" "chrome.exe" "--silent"
-                PauseMenu
+        # Parsing Input User
+        if ($userInput -match '^[aA]$') {
+            # Pilih semua aplikasi
+            foreach ($app in $appList) {
+                $null = $selectedApps.Add($app)
             }
-
-            "2" {
-                Install-App "Mozilla.Firefox" "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US" "firefox.exe" "/S"
-                PauseMenu
+        } else {
+            # Pilih spesifik berdasarkan angka koma
+            $selections = $userInput -split ','
+            foreach ($sel in $selections) {
+                $index = 0
+                if ([int]::TryParse($sel.Trim(), [ref]$index)) {
+                    # Cari aplikasi berdasarkan ID
+                    $foundApp = $appList | Where-Object { $_.Id -eq $index }
+                    
+                    if ($foundApp) {
+                        $null = $selectedApps.Add($foundApp)
+                    } else {
+                        Write-Host "Nomor [$index] tidak valid dan akan dilewati." -ForegroundColor Red
+                    }
+                }
             }
+        }
 
-            "3" {
-                Install-App "7zip.7zip" "https://www.7-zip.org/a/7z2301-x64.exe" "7zip.exe" "/S"
-                PauseMenu
+        # Eksekusi Instalasi
+        if ($selectedApps.Count -gt 0) {
+            Write-Host "`nMempersiapkan instalasi untuk $($selectedApps.Count) aplikasi..." -ForegroundColor Cyan
+            
+            foreach ($app in $selectedApps) {
+                Install-App -wingetID $app.WingetID -url $app.Url -file $app.File -silentArgs $app.Silent
             }
-
-            "4" {
-                Install-App "Adobe.Acrobat.Reader.64-bit" "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/AcroRdrDCx64.exe" "reader.exe" "/sAll"
-                PauseMenu
-            }
-
-            "5" {
-                Install-App "RARLab.WinRAR" "https://www.rarlab.com/rar/winrar-x64.exe" "winrar.exe" "/S"
-                PauseMenu
-            }
-
-            "6" {
-                Install-App "AIMP.AIMP" "https://www.aimp.ru/?do=download.file&id=2" "aimp.exe" "/AUTO"
-                PauseMenu
-            }
-
-            "7" {
-                Install-App "VideoLAN.VLC" "https://get.videolan.org/vlc/last/win64/vlc-win64.exe" "vlc.exe" "/L=1033 /S"
-                PauseMenu
-            }
-
-            "8" {
-                Write-Host ""
-                Write-Host "Installing ALL Basic Apps..." -ForegroundColor Cyan
-
-                Install-App "Google.Chrome" "https://dl.google.com/chrome/install/latest/chrome/install.exe" "chrome.exe" "--silent"
-                Install-App "7zip.7zip" "https://www.7-zip.org/a/7z2301-x64.exe" "7zip.exe" "/S"
-                Install-App "VideoLAN.VLC" "https://get.videolan.org/vlc/last/win64/vlc-win64.exe" "vlc.exe" "/L=1033 /S"
-                Install-App "RARLab.WinRAR" "https://www.rarlab.com/rar/winrar-x64.exe" "winrar.exe" "/S"
-                Install-App "AIMP.AIMP" "https://www.aimp.ru/?do=download.file&id=2" "aimp.exe" "/AUTO"
-
-                PauseMenu
-            }
-
-            "0" { return }
-
+            
+            Write-Host "`nSemua proses instalasi yang dipilih telah selesai!" -ForegroundColor Green
+            PauseMenu
+        } else {
+            Write-Host "Tidak ada aplikasi valid yang dipilih. Silakan coba lagi." -ForegroundColor Red
+            Start-Sleep -Seconds 2
         }
     }
 }
