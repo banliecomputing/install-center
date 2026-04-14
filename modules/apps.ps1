@@ -80,9 +80,30 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
             
             Invoke-WebRequest -Uri $url -OutFile $temp -UseBasicParsing -UserAgent $userAgent
             
-            Write-Host "Running installer..." -ForegroundColor Green
-            # Eksekusi installer secara diam-diam (silent)
-            Start-Process -FilePath $temp -ArgumentList $silentArgs -Wait
+            # Logika Khusus untuk Aplikasi Portable (seperti WUB)
+            if ($silentArgs -eq "PORTABLE") {
+                Write-Host "Menyiapkan aplikasi portable di Program Files..." -ForegroundColor Yellow
+                
+                $appName = [System.IO.Path]::GetFileNameWithoutExtension($file)
+                $targetDir = "$env:ProgramFiles\$appName"
+                
+                # Buat folder jika belum ada
+                if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
+                
+                $targetPath = "$targetDir\$file"
+                Copy-Item -Path $temp -Destination $targetPath -Force
+                
+                Write-Host "Membuat Shortcut di Desktop..." -ForegroundColor Yellow
+                $WshShell = New-Object -ComObject WScript.Shell
+                $Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\$appName.lnk")
+                $Shortcut.TargetPath = $targetPath
+                $Shortcut.Save()
+
+            } else {
+                Write-Host "Running installer..." -ForegroundColor Green
+                # Eksekusi installer secara diam-diam (silent)
+                Start-Process -FilePath $temp -ArgumentList $silentArgs -Wait
+            }
             
             # Hapus file mentahan agar tidak memenuhi hardisk C:
             Remove-Item -Path $temp -Force -ErrorAction SilentlyContinue
@@ -95,7 +116,7 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
         }
     }
 
-    Write-Host "Finished processing $wingetID" -ForegroundColor Green
+    Write-Host "Finished processing $displayName" -ForegroundColor Green
 }
 
 # Menu Aplikasi dengan fitur Multiple Selection
@@ -118,10 +139,13 @@ function Show-Apps {
         [PSCustomObject]@{ Id = 7; Name = "VLC Player"; WingetID = "VideoLAN.VLC"; Url = "https://get.videolan.org/vlc/last/win64/vlc-win64.exe"; File = "vlc.exe"; Silent = "/L=1033 /S" },
         
         # --- CUSTOM HOSTED APPS (GITHUB) ---
-        # Perhatikan: Kosongkan WingetID ("") agar sistem langsung mengunduh dari URL Anda
         [PSCustomObject]@{ Id = 8; Name = "Aplikasi Custom 1"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app1.exe"; File = "app1.exe"; Silent = "/S" },
         [PSCustomObject]@{ Id = 9; Name = "Aplikasi Custom 2"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app2.exe"; File = "app2.exe"; Silent = "/S" },
-        [PSCustomObject]@{ Id = 10; Name = "Aplikasi Custom 3"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app3.exe"; File = "app3.exe"; Silent = "/S" }
+        [PSCustomObject]@{ Id = 10; Name = "Aplikasi Custom 3"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app3.exe"; File = "app3.exe"; Silent = "/S" },
+        
+        # --- PORTABLE APPS (WUB) ---
+        # Gunakan parameter Silent = "PORTABLE" agar skrip membuat folder di Program Files dan Shortcut di Desktop
+        [PSCustomObject]@{ Id = 11; Name = "Windows Update Blocker v1.8"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/V1.8/Wub_x64.exe"; File = "Wub_x64.exe"; Silent = "PORTABLE" }
     )
 
     while ($true) {
@@ -151,6 +175,7 @@ function Show-Apps {
         Write-Host " [8] Install Aplikasi Custom 1"
         Write-Host " [9] Install Aplikasi Custom 2"
         Write-Host " [10] Install Aplikasi Custom 3"
+        Write-Host " [11] Install Windows Update Blocker v1.8"
         Write-Host ""
         
         Write-Host "--------------------------------------------------------"
@@ -158,7 +183,7 @@ function Show-Apps {
         Write-Host " [0] Kembali ke Menu Utama" -ForegroundColor Red
         Write-Host "========================================================" -ForegroundColor Yellow
 
-        $userInput = Read-Host "`nMasukkan pilihan Anda (Contoh: '1', '1,3,10', 'A', atau '0')"
+        $userInput = Read-Host "`nMasukkan pilihan Anda (Contoh: '1', '1,3,11', 'A', atau '0')"
 
         if ($userInput -eq '0') { return }
 
