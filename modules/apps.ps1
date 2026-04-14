@@ -41,8 +41,8 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
 
     $installedViaWinget = $false
 
-    # Coba gunakan Winget terlebih dahulu (HANYA JIKA WingetID tersedia)
-    if(Test-Winget -and ![string]::IsNullOrWhiteSpace($wingetID)){
+    # Coba gunakan Winget terlebih dahulu (HANYA JIKA WingetID benar-benar tersedia)
+    if(Test-Winget -and $wingetID){
         
         # Mengecek apakah aplikasi sudah terinstall di sistem menggunakan Winget List
         Write-Host "Mengecek status instalasi via Winget..." -ForegroundColor DarkGray
