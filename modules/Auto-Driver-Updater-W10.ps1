@@ -1,198 +1,236 @@
-#set Window Title
+# ========================================
+# AUTO DRIVER UPDATER v4.0 (Interactive Menu)
+# ========================================
+
+# Set Window Title & Timezone
 Set-TimeZone -Id "SE Asia Standard Time"
 Start-Sleep -Seconds 1
-$host.ui.RawUI.WindowTitle = "Auto Driver Updater v3.0 (20 jun 2023) for Foxway A/S by Johny Bartholdy Jensen [$(Get-Date -Format 'HH:mm')]"
-$monitor = Get-WmiObject -ns root/wmi -class wmiMonitorBrightNessMethods -EA SilentlyContinue
-if ($monitor) {$monitor.WmiSetBrightness(1,100)}
+$host.ui.RawUI.WindowTitle = "Auto Driver Updater v4.0 (Interactive) for Foxway A/S by Johny Bartholdy Jensen [$(Get-Date -Format 'HH:mm')]"
+
+# Set Brightness to 100%
+$monitor = Get-CimInstance -Namespace root/wmi -ClassName WmiMonitorBrightnessMethods -ErrorAction SilentlyContinue
+if ($monitor) { Invoke-CimMethod -InputObject $monitor -MethodName WmiSetBrightness -Arguments @{Timeout=1; Brightness=100} -ErrorAction SilentlyContinue }
 Clear-Host
 
-# predefined
-$rebootrequired = 0
-$looped = 0
+# Predefined Variables
+$rebootrequired = $false
 
-# all functions
-function text_time {Write-Host("Updating time ...`n") -Foregroundcolor Green}
-function text_search {Write-Host("`nSearching for driver updates ...") -Foregroundcolor Green}
-function text_download {Write-Host("Downloading drivers ...") -Foregroundcolor Green}
-function text_install_start {Write-Host("`nInstalling drivers ...") -Foregroundcolor Green}
-function text_install_done {Write-Host("`nInstallation complete!") -Foregroundcolor Green}
-function text_no_update {Write-Host("`nNo updates available!") -Foregroundcolor Red}
-function text_no_internet {Write-Host("`nNo internet connection found!") -Foregroundcolor Red}
-function text_reboot {Write-Host("`nReboot required! Rebooting in 10 seconds!") -Foregroundcolor Red}
-function text_research_max {Write-Host("`nMaximum number of searches has been reached! Rebooting in 10 seconds!") -Foregroundcolor Red}
+# ================= UI & TEXT FUNCTIONS =================
+function text_time { Write-Host "`nMemperbarui waktu sistem..." -ForegroundColor Green }
+function text_search { Write-Host "`nMencari pembaruan driver (Mohon tunggu)..." -ForegroundColor Cyan }
+function text_no_internet { Write-Host "`nKoneksi internet tidak ditemukan!" -ForegroundColor Red }
+function text_reboot { Write-Host "`nSistem perlu di-restart! Komputer akan restart dalam 10 detik!" -ForegroundColor Red }
+
+# ================= VALIDATION FUNCTIONS =================
 function test_ifmodel {
-    $systemfamily = Get-CimInstance win32_computersystem | select-object systemfamily
+    $systemfamily = (Get-CimInstance win32_computersystem).SystemFamily
     if ($systemfamily -match "ThinkPad P16s Gen 1"){
         Add-Type -AssemblyName PresentationFramework
-        $msgBoxInput = [System.Windows.MessageBox]::Show('The P16s needs to have run "TVSU" before running "Auto Driver Updater". Ask the team leader for more information.' + [System.Environment]::NewLine + [System.Environment]::NewLine + 'Did you run TVSU?','ThinkPad P16s dectected','YesNo','Error')
-        switch ($msgBoxInput) {
-            'Yes' {}
-            'No' {exit}
-        }
+        $msg = "Laptop P16s harus menjalankan 'TVSU' sebelum menjalankan 'Auto Driver Updater'. Tanyakan pada Team Leader untuk info lebih lanjut.`n`nApakah Anda sudah menjalankan TVSU?"
+        $msgBoxInput = [System.Windows.MessageBox]::Show($msg, 'ThinkPad P16s Terdeteksi', 'YesNo', 'Error')
+        
+        if ($msgBoxInput -eq 'No') { exit }
     }
 }
-function test_tcp_port {
-    param(
-        [string]$IP,
-        [int[]]$Port,
-        [int]$TCPTimeout = 100
-    )
-    $Result = [System.Collections.Generic.List[psobject]]::new()
-    foreach ($Item in $Port) {
-        $TCPClient = New-Object -TypeName System.Net.Sockets.TCPClient
-        $AsyncResult = $TCPClient.BeginConnect($IP, $Item, $null, $null)
-        $Wait = $AsyncResult.AsyncWaitHandle.WaitOne($TCPtimeout)
-        if ($Wait) {
-            try {
-                $null = $TCPClient.EndConnect($AsyncResult)
-            } catch {
-                $Issue = $Error[0].Exception.InnerException.SocketErrorCode
-            } finally {
-                $Result.Add([pscustomobject]@{
-                    IP = $IP
-                    Port = $Item
-                    IsOpen = $TCPClient.Connected
-                    Notes = $Issue
-                })
-            }
-        } Else {
-            $Result.Add([pscustomobject]@{
-            IP = $IP
-            Port = $Item
-            IsOpen = $TCPClient.Connected
-            Notes = 'Timeout occurred connecting to port'
-            })
-        }
-        $Issue = $Null
-        $TCPClient.Dispose()
-    }
-    return $Result
-}
+
 function test_network {
-    #$netcheckv1 = (Get-NetConnectionProfile).IPv4Connectivity -contains "Internet"
-    #$netcheckv2 = Get-NetAdapter | where Status -eq "Up"
-    #$netcheckv3 = if(Test-Connection 8.8.8.8 -Count 1 -ErrorAction SilentlyContinue){$true}else{$false}
-    #$netcheckv4 = (New-Object Net.Sockets.TcpClient "8.8.8.8", 53).Connected
-    $netcheckv5 = if((test_tcp_port 8.8.8.8 53 | select-Object isopen) -match "True") {$true}else{$false}
-    if ((!$netcheckv5)) {        
+    try {
+        $tcpClient = New-Object Net.Sockets.TcpClient
+        $async = $tcpClient.BeginConnect("8.8.8.8", 53, $null, $null)
+        $wait = $async.AsyncWaitHandle.WaitOne(1500) # Timeout 1.5 Detik
+        
+        if (-not $wait) { throw "Timeout" }
+        $tcpClient.EndConnect($async)
+        $tcpClient.Close()
+    } catch {
         text_no_internet
         Pause
         exit
     }
 }
 
-# start running script
+# ================= START SCRIPT =================
 test_ifmodel
 test_network
-slmgr -ato
+
+Write-Host "Aktivasi Windows..." -ForegroundColor Yellow
+slmgr -ato | Out-Null
 
 text_time
+
 # Start the Windows Time service
 try {
     $service = Get-Service -Name w32time -ErrorAction Stop
     if ($service.Status -ne "Running") {
         Start-Service -Name w32time
-        Write-Host "Windows Time service started successfully."
-    } else {
-        Write-Host "Windows Time service is already running."
+        Write-Host "Service Waktu Windows berhasil dijalankan." -ForegroundColor Cyan
     }
 } catch {
-    Write-Host "Failed to start the Windows Time service."
+    Write-Host "Gagal menjalankan Service Waktu Windows." -ForegroundColor Red
 }
 
 # Trigger time synchronization
 try {
     w32tm /resync /rediscover | Out-Null
-    Write-Host "Windows Time synchronization triggered successfully."
+    Write-Host "Sinkronisasi waktu berhasil." -ForegroundColor Cyan
 } catch {
-    Write-Host "Failed to trigger time synchronization."
+    Write-Host "Gagal melakukan sinkronisasi waktu." -ForegroundColor Red
 }
 
-while ($looped -lt 7) {
-    $looped += 1
+# ================= MAIN MENU LOOP =================
+while ($true) {
+    test_network
     
-    # search and list all missing drivers
-    test_network
-    $Session = New-Object -ComObject Microsoft.Update.Session           
+    # Initialize COM Object for Windows Update
+    $Session = New-Object -ComObject Microsoft.Update.Session            
     $Searcher = $Session.CreateUpdateSearcher() 
-    $Searcher.ServiceID = '7971f918-a847-4430-9279-4a52d1efe18d' # added the Microsoft Update Service GUID
-    $Searcher.SearchScope =  1 # MachineOnly
+    $Searcher.ServiceID = '7971f918-a847-4430-9279-4a52d1efe18d' # Microsoft Update Service GUID
+    $Searcher.SearchScope = 1 # MachineOnly
     $Searcher.ServerSelection = 2 # Third Party
-    test_network
+    
     $Criteria = "IsInstalled=0 and Type='Driver' and ISHidden=0"
     text_search
+    
+    # Pencarian Update
     $SearchResult = $Searcher.Search($Criteria)          
     $Updates = $SearchResult.Updates
     
-    # if no updates end loop
-    if (-not ($Updates | Select-Object Driverclass, DriverModel)) {break}
+    # Jika tidak ada update
+    if (-not $Updates -or $Updates.Count -eq 0) { 
+        Write-Host "`nTidak ada pembaruan driver yang tersedia atau semua driver sudah up-to-date." -ForegroundColor Green
+        break 
+    }
 
-    # show available drivers
-    $Updates | Select-Object Driverclass, DriverModel | Format-Table -AutoSize -HideTableHeaders
+    # Tampilkan Menu Driver
+    Write-Host "`n========================================================" -ForegroundColor Yellow
+    Write-Host " DAFTAR DRIVER YANG TERSEDIA UNTUK DIINSTALL" -ForegroundColor Yellow
+    Write-Host "========================================================" -ForegroundColor Yellow
+    
+    for ($i = 0; $i -lt $Updates.Count; $i++) {
+        $driver = $Updates.Item($i)
+        Write-Host " [$($i + 1)] $($driver.DriverModel)" -ForegroundColor Cyan
+        Write-Host "     Tipe: $($driver.Driverclass)" -ForegroundColor DarkGray
+    }
+    
+    Write-Host "--------------------------------------------------------"
+    Write-Host " [A] Install SEMUA Driver" -ForegroundColor Green
+    Write-Host " [0] Keluar / Batal" -ForegroundColor Red
+    Write-Host "========================================================" -ForegroundColor Yellow
 
-    # check if downloads are available and trigger the downloading
-    text_download
-    $UpdatesToDownload = New-Object -ComObject Microsoft.Update.UpdateColl
-    $updates | ForEach-Object {$UpdatesToDownload.Add($_) | out-null}
+    $userInput = Read-Host "`nMasukkan pilihan Anda (Contoh: '1', '1,3,4', 'A', atau '0')"
+
+    if ($userInput -eq '0') {
+        Write-Host "Keluar dari menu updater..." -ForegroundColor Yellow
+        break
+    }
+
+    # Parsing Input User
+    $selectedUpdates = New-Object System.Collections.ArrayList
+
+    if ($userInput -match '^[aA]$') {
+        # Pilih semua
+        for ($i = 0; $i -lt $Updates.Count; $i++) {
+            $null = $selectedUpdates.Add($Updates.Item($i))
+        }
+    } else {
+        # Pilih spesifik berdasarkan angka koma
+        $selections = $userInput -split ','
+        foreach ($sel in $selections) {
+            $index = 0
+            if ([int]::TryParse($sel.Trim(), [ref]$index)) {
+                if ($index -ge 1 -and $index -le $Updates.Count) {
+                    $null = $selectedUpdates.Add($Updates.Item($index - 1))
+                } else {
+                    Write-Host "Nomor [$index] tidak valid dan akan dilewati." -ForegroundColor Red
+                }
+            }
+        }
+    }
+
+    if ($selectedUpdates.Count -eq 0) {
+        Write-Host "Tidak ada driver valid yang dipilih. Silakan coba lagi." -ForegroundColor Red
+        Start-Sleep -Seconds 2
+        continue
+    }
+
     $UpdateSession = New-Object -ComObject Microsoft.Update.Session
-    $Downloader = $UpdateSession.CreateUpdateDownloader()
-    $Downloader.Updates = $UpdatesToDownload
-    Write-Progress -Activity "Downloading drivers" -Status "Starting downloading ..." -PercentComplete 0
-    $TotalUpdates = $Downloader.Updates.Count
+    $TotalSelected = $selectedUpdates.Count
+
+    # ================= DOWNLOAD PROCESS =================
+    Write-Host "`nMemulai proses unduhan..." -ForegroundColor Yellow
     $CompletedUpdates = 0
-    $Downloader.Updates | ForEach-Object {
+
+    foreach ($Update in $selectedUpdates) {
         $CompletedUpdates++
-        $Update = $_
-        $UpdateTitle = "[$CompletedUpdates/$TotalUpdates] " + $Update.DriverModel
-        $PercentComplete = ($CompletedUpdates / $TotalUpdates) * 100
-        Write-Progress -Activity "Downloading drivers" -Status "Downloading ..." -CurrentOperation $UpdateTitle -PercentComplete $PercentComplete
+        
+        $SingleUpdateColl = New-Object -ComObject Microsoft.Update.UpdateColl
+        $SingleUpdateColl.Add($Update) | Out-Null
+        
+        $Downloader = $UpdateSession.CreateUpdateDownloader()
+        $Downloader.Updates = $SingleUpdateColl
+        
+        $UpdateTitle = "[$CompletedUpdates/$TotalSelected] " + $Update.DriverModel
+        $PercentComplete = ($CompletedUpdates / $TotalSelected) * 100
+        Write-Progress -Activity "Mengunduh Driver" -Status "Sedang mengunduh..." -CurrentOperation $UpdateTitle -PercentComplete $PercentComplete
+        
+        if (-not $Update.EulaAccepted) { $Update.AcceptEula() }
         $Downloader.Download() | Out-Null
     }
-    Write-Progress -Activity "Downloading drivers" -Completed
+    Write-Progress -Activity "Mengunduh Driver" -Completed
         
-    # check if the drivers are all downloaded and trigger the installation
-    text_install_start
-    $UpdatesToInstall = New-Object -ComObject Microsoft.Update.UpdateColl
-    $Updates | ForEach-Object {$UpdatesToInstall.Add($_) | Out-Null}
-    $Installer = $UpdateSession.CreateUpdateInstaller()
-    $Installer.Updates = $UpdatesToInstall
-    $TotalUpdates = $Installer.Updates.Count
-    Write-Progress -Activity "Installing Drivers" -Status "Starting installation ..." -PercentComplete 0
+    # ================= INSTALLATION PROCESS =================
+    Write-Host "Memulai proses instalasi..." -ForegroundColor Yellow
     $CompletedInstalls = 0
-    $Installer.Updates | ForEach-Object {
+    
+    foreach ($Update in $selectedUpdates) {
         $CompletedInstalls++
-        $Update = $_    
-        $UpdateTitle = "[$CompletedInstalls/$TotalUpdates] " + $Update.DriverModel
-        $PercentComplete = ($CompletedInstalls / $TotalUpdates) * 100
-        Write-Progress -Activity "Installing Drivers" -Status "Installing ..." -CurrentOperation $UpdateTitle -PercentComplete $PercentComplete
+        
+        $SingleInstallColl = New-Object -ComObject Microsoft.Update.UpdateColl
+        $SingleInstallColl.Add($Update) | Out-Null
+        
+        $Installer = $UpdateSession.CreateUpdateInstaller()
+        $Installer.Updates = $SingleInstallColl
+        
+        $UpdateTitle = "[$CompletedInstalls/$TotalSelected] " + $Update.DriverModel
+        $PercentComplete = ($CompletedInstalls / $TotalSelected) * 100
+        Write-Progress -Activity "Menginstal Driver" -Status "Sedang menginstal..." -CurrentOperation $UpdateTitle -PercentComplete $PercentComplete
+        
         $Installer.Install() | Out-Null
     }
-    Write-Progress -Activity "Installing Drivers" -Completed
-    $rebootrequired = 1
+    Write-Progress -Activity "Menginstal Driver" -Completed
+    
+    Write-Host "`nInstalasi selesai!" -ForegroundColor Green
+    $rebootrequired = $true
+
+    # Konfirmasi apakah ingin scan ulang
+    Write-Host ""
+    $rescan = Read-Host "Apakah Anda ingin memindai (scan) driver lagi? (Y/N)"
+    if ($rescan -notmatch '^[yY]$') {
+        break
+    }
+    Clear-Host
 }
 
-# clean up
-$updateSvc.Services | Where-Object {$_.IsDefaultAUService -eq $false -and $_.ServiceID -eq "7971f918-a847-4430-9279-4a52d1efe18d"} | ForEach-Object {$UpdateSvc.RemoveService($_.ServiceID)}
+# ================= CLEAN UP =================
+try {
+    $updateSvc = New-Object -ComObject Microsoft.Update.ServiceManager
+    $updateSvc.Services | 
+        Where-Object { $_.IsDefaultAUService -eq $false -and $_.ServiceID -eq "7971f918-a847-4430-9279-4a52d1efe18d" } | 
+        ForEach-Object { $updateSvc.RemoveService($_.ServiceID) }
+} catch {
+    Write-Host "Cleanup dilewati." -ForegroundColor DarkGray
+}
 
-# internet check
+# ================= FINAL CHECK & REBOOT =================
 test_network
-text_no_update
 
-# reboot required check
-if(($rebootrequired -gt 0) -or ($looped -gt 6)) {  
+if ($rebootrequired) {  
     text_reboot
     Start-Sleep -Seconds 10
     Restart-Computer -Force
+} else {
+    Write-Host "`nTidak ada perubahan sistem yang membutuhkan Restart." -ForegroundColor Green
 }
 
-# max count check
-if(($rebootrequired -eq 0) -and ($looped -gt 6)) { 
-    text_research_max
-    if($rebootrequired -lt 1) {
-        Start-Sleep -Seconds 10
-        Restart-Computer -Force
-    }
-}
-
-Write-Host(" ")
+Write-Host "`nProses selesai."
 Pause
