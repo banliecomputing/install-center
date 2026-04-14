@@ -46,6 +46,9 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
         
         # Mengecek apakah aplikasi sudah terinstall di sistem menggunakan Winget List
         Write-Host "Mengecek status instalasi via Winget..." -ForegroundColor DarkGray
+        $checkInstalled = winget list -e --id $wingetID --accept-source-agreements 2>$null
+        
+        if ($checkInstalled -match $wingetID) {
             Write-Host "=> Aplikasi $wingetID sudah terinstall di sistem. Melewati proses." -ForegroundColor Green
             return # Langsung keluar dari fungsi dan lanjut ke aplikasi berikutnya
         }
