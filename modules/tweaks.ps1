@@ -1,170 +1,144 @@
+# ========================================
+# MODULE: WINDOWS TWEAKS & OPTIMIZATION
+# ========================================
+
 function Show-Tweaks {
 
-while ($true) {
+    # Pengecekan Hak Akses Administrator
+    $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
-Show-Header
+    while ($true) {
 
-Write-Host "========== WINDOWS TWEAKS ==========" -ForegroundColor Magenta
-Write-Host ""
+        Show-Header
 
-Write-Host "1. Enable Dark Mode"
-Write-Host "2. Show File Extensions"
-Write-Host "3. Disable Windows Telemetry"
-Write-Host "4. Disable Startup Delay"
-Write-Host "5. Disable Windows Tips"
-Write-Host ""
-Write-Host "===== PERFORMANCE =====" -ForegroundColor Yellow
-Write-Host "6. Enable Ultimate Performance"
-Write-Host "7. Disable Background Apps"
-Write-Host ""
-Write-Host "===== EXPLORER =====" -ForegroundColor Yellow
-Write-Host "8. Show Hidden Files"
-Write-Host "9. Disable Shortcut Arrow"
-Write-Host ""
-Write-Host "0. Back"
-Write-Host ""
+        if (-not $isAdmin) {
+            Write-Host " [!] PERINGATAN: Jalankan PowerShell sebagai Administrator agar semua Tweak berhasil!" -ForegroundColor Red
+            Write-Host ""
+        }
 
-$choice = Read-Host "Select"
+        Write-Host "========== WINDOWS TWEAKS ==========" -ForegroundColor Magenta
+        Write-Host ""
 
-switch ($choice) {
+        Write-Host "1. Enable Dark Mode"
+        Write-Host "2. Show File Extensions"
+        Write-Host "3. Disable Windows Telemetry (Butuh Admin)"
+        Write-Host "4. Disable Startup Delay"
+        Write-Host "5. Disable Windows Tips"
+        Write-Host ""
+        Write-Host "===== PERFORMANCE =====" -ForegroundColor Yellow
+        Write-Host "6. Enable Ultimate Performance"
+        Write-Host "7. Disable Background Apps"
+        Write-Host ""
+        Write-Host "===== EXPLORER =====" -ForegroundColor Yellow
+        Write-Host "8. Show Hidden Files"
+        Write-Host "9. Disable Shortcut Arrow (Butuh Admin)"
+        Write-Host ""
+        Write-Host "0. Back"
+        Write-Host ""
 
-"1" {
+        $choice = Read-Host "Select"
 
-Show-Header
+        switch ($choice) {
 
-Set-ItemProperty `
--Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize `
--Name AppsUseLightTheme -Value 0
+            "1" {
+                Show-Header
+                Write-Host "Enabling Dark Mode..." -ForegroundColor Yellow
+                Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Value 0
+                Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme -Value 0
+                Write-Host "Dark Mode Enabled" -ForegroundColor Green
+                PauseMenu
+            }
 
-Set-ItemProperty `
--Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize `
--Name SystemUsesLightTheme -Value 0
+            "2" {
+                Show-Header
+                Write-Host "Enabling File Extensions..." -ForegroundColor Yellow
+                Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name HideFileExt -Value 0
+                Write-Host "File Extensions Enabled" -ForegroundColor Green
+                PauseMenu
+            }
 
-Write-Host "Dark Mode Enabled" -ForegroundColor Green
+            "3" {
+                Show-Header
+                Write-Host "Disabling Telemetry..." -ForegroundColor Yellow
+                try {
+                    $path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+                    if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+                    New-ItemProperty -Path $path -Name "AllowTelemetry" -PropertyType DWord -Value 0 -Force | Out-Null
+                    Write-Host "Telemetry Disabled" -ForegroundColor Green
+                } catch {
+                    Write-Host "Gagal. Pastikan Anda menjalankan ini sebagai Administrator." -ForegroundColor Red
+                }
+                PauseMenu
+            }
 
-PauseMenu
-}
+            "4" {
+                Show-Header
+                Write-Host "Disabling Startup Delay..." -ForegroundColor Yellow
+                # Seringkali folder Serialize tidak ada, harus dibuat dulu
+                $path = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize"
+                if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+                Set-ItemProperty -Path $path -Name "StartupDelayInMSec" -Value 0 -Force
+                Write-Host "Startup Delay Disabled" -ForegroundColor Green
+                PauseMenu
+            }
 
-"2" {
+            "5" {
+                Show-Header
+                Write-Host "Disabling Windows Tips..." -ForegroundColor Yellow
+                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name SubscribedContent-338389Enabled -Value 0
+                Write-Host "Windows Tips Disabled" -ForegroundColor Green
+                PauseMenu
+            }
 
-Show-Header
+            "6" {
+                Show-Header
+                Write-Host "Enabling Ultimate Performance..." -ForegroundColor Yellow
+                powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61 | Out-Null
+                Write-Host "Ultimate Performance Enabled" -ForegroundColor Green
+                PauseMenu
+            }
 
-Set-ItemProperty `
--Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced `
--Name HideFileExt -Value 0
+            "7" {
+                Show-Header
+                Write-Host "Disabling Background Apps..." -ForegroundColor Yellow
+                Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" -Name GlobalUserDisabled -Value 1
+                Write-Host "Background Apps Disabled" -ForegroundColor Green
+                PauseMenu
+            }
 
-Write-Host "File Extensions Enabled" -ForegroundColor Green
+            "8" {
+                Show-Header
+                Write-Host "Enabling Hidden Files..." -ForegroundColor Yellow
+                Set-ItemProperty -Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -Name Hidden -Value 1
+                Write-Host "Hidden Files Enabled" -ForegroundColor Green
+                PauseMenu
+            }
 
-PauseMenu
-}
+            "9" {
+                Show-Header
+                Write-Host "Removing Shortcut Arrows..." -ForegroundColor Yellow
+                try {
+                    $path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons"
+                    if (-not (Test-Path $path)) { New-Item -Path $path -Force | Out-Null }
+                    New-ItemProperty -Path $path -Name "29" -Value "" -PropertyType String -Force | Out-Null
+                    
+                    Write-Host "Restarting Windows Explorer..." -ForegroundColor Yellow
+                    Stop-Process -Name explorer -Force
+                    Start-Sleep -Seconds 1
+                    Start-Process explorer
+                    Write-Host "Shortcut Arrow Removed" -ForegroundColor Green
+                } catch {
+                    Write-Host "Gagal. Pastikan Anda menjalankan ini sebagai Administrator." -ForegroundColor Red
+                }
+                PauseMenu
+            }
 
-"3" {
+            "0" { return }
 
-Show-Header
-
-New-ItemProperty `
--Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" `
--Name "AllowTelemetry" `
--PropertyType DWord `
--Value 0 -Force
-
-Write-Host "Telemetry Disabled" -ForegroundColor Green
-
-PauseMenu
-}
-
-"4" {
-
-Show-Header
-
-Set-ItemProperty `
--Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Serialize" `
--Name StartupDelayInMSec `
--Value 0 -Force
-
-Write-Host "Startup Delay Disabled" -ForegroundColor Green
-
-PauseMenu
-}
-
-"5" {
-
-Show-Header
-
-Set-ItemProperty `
--Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" `
--Name SubscribedContent-338389Enabled `
--Value 0
-
-Write-Host "Windows Tips Disabled" -ForegroundColor Green
-
-PauseMenu
-}
-
-"6" {
-
-Show-Header
-
-powercfg -duplicatescheme e9a42b02-d5df-448d-aa00-03f14749eb61
-
-Write-Host "Ultimate Performance Enabled" -ForegroundColor Green
-
-PauseMenu
-}
-
-"7" {
-
-Show-Header
-
-Set-ItemProperty `
--Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" `
--Name GlobalUserDisabled `
--Value 1
-
-Write-Host "Background Apps Disabled" -ForegroundColor Green
-
-PauseMenu
-}
-
-"8" {
-
-Show-Header
-
-Set-ItemProperty `
--Path HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced `
--Name Hidden `
--Value 1
-
-Write-Host "Hidden Files Enabled" -ForegroundColor Green
-
-PauseMenu
-}
-
-"9" {
-
-Show-Header
-
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" /v 29 /t REG_SZ /d "" /f
-
-Stop-Process -Name explorer -Force
-Start-Process explorer
-
-Write-Host "Shortcut Arrow Removed" -ForegroundColor Green
-
-PauseMenu
-}
-
-"0" { return }
-
-default {
-
-Write-Host "Invalid choice" -ForegroundColor Red
-Start-Sleep 1
-
-}
-
-}
-
-}
-
+            default {
+                Write-Host "Invalid choice" -ForegroundColor Red
+                Start-Sleep 1
+            }
+        }
+    }
 }
