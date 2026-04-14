@@ -1,12 +1,12 @@
 # ========================================
 # AUTO DRIVER UPDATER v4.0 (Interactive Menu)
-# (Disimpan sebagai diagnostic.ps1)
+# (Disimpan sebagai Auto-Driver-Updater-W10.ps1)
 # ========================================
 
 # Set Window Title & Timezone
 Set-TimeZone -Id "SE Asia Standard Time"
 Start-Sleep -Seconds 1
-$host.ui.RawUI.WindowTitle = "Auto Driver Updater v4.0 (Interactive) mod  Foxway A/S by Johny Bartholdy Jensen [$(Get-Date -Format 'HH:mm')]"
+$host.ui.RawUI.WindowTitle = "Auto Driver Updater v4.0 (Interactive) for Foxway A/S by Johny Bartholdy Jensen [$(Get-Date -Format 'HH:mm')]"
 
 # Set Brightness to 100%
 $monitor = Get-CimInstance -Namespace root/wmi -ClassName WmiMonitorBrightnessMethods -ErrorAction SilentlyContinue
@@ -56,7 +56,7 @@ function Show-Diagnostic {
         test_network
     } catch {
         Write-Host "Dibatalkan: $($_.Exception.Message)" -ForegroundColor Red
-        PauseMenu
+        Pause
         return # Kembali ke menu utama Install Center
     }
 
@@ -240,5 +240,5 @@ function Show-Diagnostic {
     }
 
     Write-Host "`nProses selesai."
-    PauseMenu
+    Pause
 }
