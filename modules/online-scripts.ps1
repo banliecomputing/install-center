@@ -1,93 +1,87 @@
+# ========================================
+# MODULE: ONLINE SCRIPT CENTER
+# ========================================
+
 function Show-OnlineScripts {
 
-$scripts = @{
+    # Menggunakan ScriptBlock (Action) agar lebih fleksibel membedakan antara Skrip dan Website
+    $scripts = @{
+        1 = @{
+            Name = "Microsoft Activation Script (MAS)"
+            Action = { irm "https://get.activated.win" | iex }
+        }
+        2 = @{
+            Name = "Windows Utility - Chris Titus"
+            Action = { irm "https://christitus.com/win" | iex }
+        }
+        3 = @{
+            Name = "Auto Driver Updater (Local Module)"
+            Action = { Show-DriverUpdater }
+        }
+        4 = @{
+            Name = "Windows Debloat Tool (Raphi)"
+            Action = { irm "https://debloat.raphi.re/" | iex }
+        }
+        5 = @{
+            Name = "Office Installer Tool"
+            Action = { irm "https://officetool.plus/otool/otool.ps1" | iex }
+        }
+        6 = @{
+            Name = "Reset Windows Update"
+            Action = { irm "https://raw.githubusercontent.com/wureset-tools/windows-update-reset/main/reset.ps1" | iex }
+        }
+        7 = @{
+            Name = "Microsoft PC Manager (Buka di Browser)"
+            Action = { Start-Process "https://pcmanager.microsoft.com" }
+        }
+    }
 
-"1" = @{
-Name = "Microsoft Activation Script (MAS)"
-Url  = "https://get.activated.win"
-}
+    while ($true) {
 
-"2" = @{
-Name = "Windows Utility - Chris Titus"
-Url  = "https://christitus.com/win"
-}
+        Show-Header
 
-"3" = @{
-Name = "Auto Driver Updater W10/W11"
-Url  = "https://raw.githubusercontent.com/banliecomputing/install-center/main/modules/Auto-Driver-Updater-W10.ps1"
-}
+        Write-Host "========== ONLINE SCRIPT CENTER ==========" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host " Remote tools executed directly from internet" -ForegroundColor DarkGray
+        Write-Host ""
 
-"4" = @{
-Name = "Windows Debloat Tool"
-Url  = "https://debloat.raphi.re/"
-}
+        # Sortir berdasarkan angka (key integer) agar urutan tidak berantakan jika > 9
+        $sortedKeys = $scripts.Keys | Sort-Object
 
-"5" = @{
-Name = "Office Installer Tool"
-Url  = "https://officetool.plus/otool/otool.ps1"
-}
+        foreach ($key in $sortedKeys) {
+            Write-Host " $key. $($scripts[$key].Name)"
+        }
 
-"6" = @{
-Name = "Reset Windows Update"
-Url  = "https://raw.githubusercontent.com/wureset-tools/windows-update-reset/main/reset.ps1"
-}
+        Write-Host ""
+        Write-Host " 0. Back"
+        Write-Host ""
 
-"7" = @{
-Name = "Microsoft PC Manager Download"
-Url  = "https://pcmanager.microsoft.com"
-}
+        $choice = Read-Host "Select"
 
-}
+        if ($choice -eq "0") { return }
 
-while ($true) {
+        # Konversi input user ke integer untuk pencocokan key
+        $choiceInt = 0
+        if ([int]::TryParse($choice, [ref]$choiceInt) -and $scripts.ContainsKey($choiceInt)) {
+            
+            Show-Header
 
-Show-Header
+            Write-Host "Mengeksekusi: $($scripts[$choiceInt].Name)" -ForegroundColor Yellow
+            Write-Host ""
 
-Write-Host "========== ONLINE SCRIPT CENTER ==========" -ForegroundColor Cyan
-Write-Host ""
-Write-Host "Remote tools executed directly from internet"
-Write-Host ""
+            try {
+                # Menjalankan Action / ScriptBlock sesuai pilihan
+                & $scripts[$choiceInt].Action
+            } catch {
+                Write-Host ""
+                Write-Host "Gagal mengeksekusi skrip atau dibatalkan: $($_.Exception.Message)" -ForegroundColor Red
+            }
 
-foreach ($key in ($scripts.Keys | Sort-Object)) {
+            PauseMenu
 
-Write-Host "$key. $($scripts[$key].Name)"
-
-}
-
-Write-Host ""
-Write-Host "0. Back"
-Write-Host ""
-
-$choice = Read-Host "Select"
-
-if ($choice -eq "0") { return }
-
-if ($scripts.ContainsKey($choice)) {
-
-Show-Header
-
-Write-Host "Launching $($scripts[$choice].Name)" -ForegroundColor Yellow
-Write-Host ""
-
-try {
-
-irm $scripts[$choice].Url | iex
-
-}catch{
-
-Write-Host "Failed to execute script." -ForegroundColor Red
-
-}
-
-PauseMenu
-
-}else{
-
-Write-Host "Invalid choice" -ForegroundColor Red
-Start-Sleep 1
-
-}
-
-}
-
+        } else {
+            Write-Host "Pilihan tidak valid." -ForegroundColor Red
+            Start-Sleep -Seconds 1
+        }
+    }
 }
