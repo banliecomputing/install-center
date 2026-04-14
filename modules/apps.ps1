@@ -34,18 +34,18 @@ function Install-WingetForce {
 function Install-App($wingetID, $url, $file, $silentArgs="/S"){
 
     Write-Host ""
-    Write-Host "Preparing install: $wingetID" -ForegroundColor Cyan
+    
+    # Menyesuaikan judul jika aplikasi tidak memiliki WingetID (aplikasi custom)
+    $displayName = if (![string]::IsNullOrWhiteSpace($wingetID)) { $wingetID } else { $file }
+    Write-Host "Preparing install: $displayName" -ForegroundColor Cyan
 
     $installedViaWinget = $false
 
-    # Coba gunakan Winget terlebih dahulu
-    if(Test-Winget){
+    # Coba gunakan Winget terlebih dahulu (HANYA JIKA WingetID tersedia)
+    if(Test-Winget -and ![string]::IsNullOrWhiteSpace($wingetID)){
         
         # Mengecek apakah aplikasi sudah terinstall di sistem menggunakan Winget List
-        Write-Host "Mengecek status instalasi..." -ForegroundColor DarkGray
-        $checkInstalled = winget list -e --id $wingetID --accept-source-agreements 2>$null
-        
-        if ($checkInstalled -match $wingetID) {
+        Write-Host "Mengecek status instalasi via Winget..." -ForegroundColor DarkGray
             Write-Host "=> Aplikasi $wingetID sudah terinstall di sistem. Melewati proses." -ForegroundColor Green
             return # Langsung keluar dari fungsi dan lanjut ke aplikasi berikutnya
         }
@@ -60,7 +60,7 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
         }
     }
 
-    # Mode Unduh Manual (jika Winget tidak ada atau gagal karena jaringan/error)
+    # Mode Unduh Manual (jika Winget tidak ada, gagal, atau aplikasi custom GitHub)
     if(-not $installedViaWinget){
         
         if(!$url){
@@ -112,7 +112,12 @@ function Show-Apps {
         [PSCustomObject]@{ Id = 4; Name = "Acrobat Reader"; WingetID = "Adobe.Acrobat.Reader.64-bit"; Url = "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/AcroRdrDCx64.exe"; File = "reader.exe"; Silent = "/sAll" },
         [PSCustomObject]@{ Id = 5; Name = "WinRAR"; WingetID = "RARLab.WinRAR"; Url = "https://www.rarlab.com/rar/winrar-x64.exe"; File = "winrar.exe"; Silent = "/S" },
         [PSCustomObject]@{ Id = 6; Name = "Aimp Player"; WingetID = "AIMP.AIMP"; Url = "https://www.aimp.ru/?do=download.file&id=2"; File = "aimp.exe"; Silent = "/AUTO" },
-        [PSCustomObject]@{ Id = 7; Name = "VLC Player"; WingetID = "VideoLAN.VLC"; Url = "https://get.videolan.org/vlc/last/win64/vlc-win64.exe"; File = "vlc.exe"; Silent = "/L=1033 /S" }
+        [PSCustomObject]@{ Id = 7; Name = "VLC Player"; WingetID = "VideoLAN.VLC"; Url = "https://get.videolan.org/vlc/last/win64/vlc-win64.exe"; File = "vlc.exe"; Silent = "/L=1033 /S" },
+        
+        # --- CUSTOM HOSTED APPS (GITHUB) ---
+        # Perhatikan: Kosongkan WingetID ("") agar sistem langsung mengunduh dari URL Anda
+        [PSCustomObject]@{ Id = 8; Name = "Aplikasi Custom 1"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app1.exe"; File = "app1.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 9; Name = "Aplikasi Custom 2"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app2.exe"; File = "app2.exe"; Silent = "/S" }
     )
 
     while ($true) {
@@ -137,13 +142,18 @@ function Show-Apps {
         Write-Host " [6] Install Aimp Player"
         Write-Host " [7] Install VLC Player"
         Write-Host ""
+
+        Write-Host "==== Custom Hosted Apps ====" -ForegroundColor Magenta
+        Write-Host " [8] Install Aplikasi Custom 1"
+        Write-Host " [9] Install Aplikasi Custom 2"
+        Write-Host ""
         
         Write-Host "--------------------------------------------------------"
         Write-Host " [A] Install SEMUA Aplikasi" -ForegroundColor Green
         Write-Host " [0] Kembali ke Menu Utama" -ForegroundColor Red
         Write-Host "========================================================" -ForegroundColor Yellow
 
-        $userInput = Read-Host "`nMasukkan pilihan Anda (Contoh: '1', '1,3,4', 'A', atau '0')"
+        $userInput = Read-Host "`nMasukkan pilihan Anda (Contoh: '1', '1,3,8', 'A', atau '0')"
 
         if ($userInput -eq '0') { return }
 
