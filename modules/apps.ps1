@@ -120,7 +120,8 @@ function Show-Apps {
         # --- CUSTOM HOSTED APPS (GITHUB) ---
         # Perhatikan: Kosongkan WingetID ("") agar sistem langsung mengunduh dari URL Anda
         [PSCustomObject]@{ Id = 8; Name = "Aplikasi Custom 1"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app1.exe"; File = "app1.exe"; Silent = "/S" },
-        [PSCustomObject]@{ Id = 9; Name = "Aplikasi Custom 2"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app2.exe"; File = "app2.exe"; Silent = "/S" }
+        [PSCustomObject]@{ Id = 9; Name = "Aplikasi Custom 2"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app2.exe"; File = "app2.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 10; Name = "Aplikasi Custom 3"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app3.exe"; File = "app3.exe"; Silent = "/S" }
     )
 
     while ($true) {
@@ -149,6 +150,7 @@ function Show-Apps {
         Write-Host "==== Custom Hosted Apps ====" -ForegroundColor Magenta
         Write-Host " [8] Install Aplikasi Custom 1"
         Write-Host " [9] Install Aplikasi Custom 2"
+        Write-Host " [10] Install Aplikasi Custom 3"
         Write-Host ""
         
         Write-Host "--------------------------------------------------------"
@@ -156,7 +158,7 @@ function Show-Apps {
         Write-Host " [0] Kembali ke Menu Utama" -ForegroundColor Red
         Write-Host "========================================================" -ForegroundColor Yellow
 
-        $userInput = Read-Host "`nMasukkan pilihan Anda (Contoh: '1', '1,3,8', 'A', atau '0')"
+        $userInput = Read-Host "`nMasukkan pilihan Anda (Contoh: '1', '1,3,10', 'A', atau '0')"
 
         if ($userInput -eq '0') { return }
 
