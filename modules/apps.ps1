@@ -33,6 +33,9 @@ function Install-WingetForce {
 # Fungsi utama untuk menginstal aplikasi (Gabungan Winget + Fallback Direct Download)
 function Install-App($wingetID, $url, $file, $silentArgs="/S"){
 
+    # Memaksa penggunaan TLS 1.2 untuk menghindari error koneksi GitHub
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
     Write-Host ""
     
     # Menyesuaikan judul jika aplikasi tidak memiliki WingetID (aplikasi custom)
@@ -41,8 +44,8 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
 
     $installedViaWinget = $false
 
-    # Coba gunakan Winget terlebih dahulu (HANYA JIKA WingetID benar-benar tersedia)
-    if(Test-Winget -and $wingetID){
+    # Coba gunakan Winget terlebih dahulu (HANYA JIKA WingetID BENAR-BENAR TERSEDIA)
+    if(Test-Winget -and ![string]::IsNullOrWhiteSpace($wingetID)){
         
         # Mengecek apakah aplikasi sudah terinstall di sistem menggunakan Winget List
         Write-Host "Mengecek status instalasi via Winget..." -ForegroundColor DarkGray
@@ -72,31 +75,41 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
         }
 
         $temp = "$env:TEMP\$file"
-        Write-Host "Downloading installer..." -ForegroundColor Yellow
+        Write-Host "Downloading installer dari URL..." -ForegroundColor Yellow
 
         try {
             # Menyamarkan PowerShell sebagai browser untuk menghindari Error 500/403
             $userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
             
+            # Memastikan progress bar unduhan tidak disembunyikan
+            $ProgressPreference = 'Continue'
             Invoke-WebRequest -Uri $url -OutFile $temp -UseBasicParsing -UserAgent $userAgent
             
             # Logika Khusus untuk Aplikasi Portable (seperti WUB)
             if ($silentArgs -eq "PORTABLE") {
-                Write-Host "Menyiapkan aplikasi portable di Program Files..." -ForegroundColor Yellow
+                Write-Host "Menyiapkan aplikasi portable..." -ForegroundColor Yellow
                 
                 $appName = [System.IO.Path]::GetFileNameWithoutExtension($file)
-                $targetDir = "$env:ProgramFiles\$appName"
+                
+                # Cek apakah user menjalankan PowerShell sebagai Administrator
+                $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+                
+                # Jika Admin, taruh di Program Files. Jika tidak, taruh di LocalAppData agar tidak error
+                $targetDir = if ($isAdmin) { "$env:ProgramFiles\$appName" } else { "$env:LOCALAPPDATA\Programs\$appName" }
                 
                 # Buat folder jika belum ada
                 if (-not (Test-Path $targetDir)) { New-Item -ItemType Directory -Path $targetDir -Force | Out-Null }
                 
                 $targetPath = "$targetDir\$file"
+                Write-Host "Menyalin file ke $targetPath..." -ForegroundColor DarkGray
                 Copy-Item -Path $temp -Destination $targetPath -Force
                 
                 Write-Host "Membuat Shortcut di Desktop..." -ForegroundColor Yellow
                 $WshShell = New-Object -ComObject WScript.Shell
-                $Shortcut = $WshShell.CreateShortcut("$env:PUBLIC\Desktop\$appName.lnk")
+                $desktopPath = [Environment]::GetFolderPath("Desktop")
+                $Shortcut = $WshShell.CreateShortcut("$desktopPath\$appName.lnk")
                 $Shortcut.TargetPath = $targetPath
+                $Shortcut.WorkingDirectory = $targetDir
                 $Shortcut.Save()
 
             } else {
@@ -110,8 +123,7 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
             Write-Host "Cleanup: Removed temporary file." -ForegroundColor DarkGray
 
         } catch {
-            Write-Host "Download Error: $($_.Exception.Message)" -ForegroundColor Red
-            Write-Host "Catatan: Jika masih error 404, link URL sudah mati/diganti oleh vendor." -ForegroundColor DarkGray
+            Write-Host "Error saat mengeksekusi unduhan: $($_.Exception.Message)" -ForegroundColor Red
             return
         }
     }
@@ -144,7 +156,6 @@ function Show-Apps {
         [PSCustomObject]@{ Id = 10; Name = "Aplikasi Custom 3"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app3.exe"; File = "app3.exe"; Silent = "/S" },
         
         # --- PORTABLE APPS (WUB) ---
-        # Gunakan parameter Silent = "PORTABLE" agar skrip membuat folder di Program Files dan Shortcut di Desktop
         [PSCustomObject]@{ Id = 11; Name = "Windows Update Blocker v1.8"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/V1.8/Wub_x64.exe"; File = "Wub_x64.exe"; Silent = "PORTABLE" }
     )
 
