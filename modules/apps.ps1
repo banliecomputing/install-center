@@ -39,13 +39,13 @@ function Install-App($wingetID, $url, $file, $silentArgs="/S"){
     Write-Host ""
     
     # Menyesuaikan judul jika aplikasi tidak memiliki WingetID (aplikasi custom)
-    $displayName = if (![string]::IsNullOrWhiteSpace($wingetID)) { $wingetID } else { $file }
+    $displayName = if ($wingetID) { $wingetID } else { $file }
     Write-Host "Preparing install: $displayName" -ForegroundColor Cyan
 
     $installedViaWinget = $false
 
     # Coba gunakan Winget terlebih dahulu (HANYA JIKA WingetID BENAR-BENAR TERSEDIA)
-    if(Test-Winget -and ![string]::IsNullOrWhiteSpace($wingetID)){
+    if((Test-Winget) -and $wingetID){
         
         # Mengecek apakah aplikasi sudah terinstall di sistem menggunakan Winget List
         Write-Host "Mengecek status instalasi via Winget..." -ForegroundColor DarkGray
