@@ -20,7 +20,7 @@ function Show-Header {
     Write-Host "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝╚══════╝" -ForegroundColor Cyan
 
     Write-Host ""
-    Write-Host "BanlieComp @ 2026 v.1.1" -ForegroundColor Yellow
+    Write-Host "BanlieComp @ 2026 v.1.2" -ForegroundColor Yellow
     Write-Host ""
 
     try {
