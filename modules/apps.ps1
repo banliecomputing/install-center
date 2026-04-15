@@ -151,9 +151,9 @@ function Show-Apps {
         [PSCustomObject]@{ Id = 7; Name = "VLC Player"; WingetID = "VideoLAN.VLC"; Url = "https://get.videolan.org/vlc/last/win64/vlc-win64.exe"; File = "vlc.exe"; Silent = "/L=1033 /S" },
         
         # --- CUSTOM HOSTED APPS (GITHUB) ---
-        [PSCustomObject]@{ Id = 8; Name = "Aplikasi Custom 1"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app1.exe"; File = "app1.exe"; Silent = "/S" },
-        [PSCustomObject]@{ Id = 9; Name = "Aplikasi Custom 2"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app2.exe"; File = "app2.exe"; Silent = "/S" },
-        [PSCustomObject]@{ Id = 10; Name = "Aplikasi Custom 3"; WingetID = ""; Url = "https://raw.githubusercontent.com/banliecomputing/install-center/main/files/app3.exe"; File = "app3.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 8; Name = "Picasa Viewer"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/APPS/picasa39-setup.exe"; File = "picasa39-setup.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 9; Name = "AdbeRdr11000_en_US"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/APPS/AdbeRdr11000_en_US.exe"; File = "AdbeRdr11000_en_US.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 10; Name = "WinRAR7.10x64"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/APPS/WinRAR7.10x64.exe"; File = "WinRAR7.10x64.exe"; Silent = "/S" },
         
         # --- PORTABLE APPS (WUB) ---
         [PSCustomObject]@{ Id = 11; Name = "Windows Update Blocker v1.8"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/V1.8/Wub_x64.exe"; File = "Wub_x64.exe"; Silent = "PORTABLE" }
