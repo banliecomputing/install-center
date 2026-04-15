@@ -183,9 +183,9 @@ function Show-Apps {
         Write-Host ""
 
         Write-Host "==== Custom Hosted Apps ====" -ForegroundColor Magenta
-        Write-Host " [8] Install Aplikasi Custom 1"
-        Write-Host " [9] Install Aplikasi Custom 2"
-        Write-Host " [10] Install Aplikasi Custom 3"
+        Write-Host " [8] Picasa Viewer 3.9"
+        Write-Host " [9] Adobe Reader 11"
+        Write-Host " [10] WinRAR 7 W10-11x64"
         Write-Host " [11] Install Windows Update Blocker v1.8"
         Write-Host ""
         
