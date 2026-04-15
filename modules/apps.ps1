@@ -152,8 +152,8 @@ function Show-Apps {
         
         # --- CUSTOM HOSTED APPS (GITHUB) ---
         [PSCustomObject]@{ Id = 8; Name = "Picasa Viewer"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/APPS/picasa39-setup.exe"; File = "picasa39-setup.exe"; Silent = "/S" },
-        [PSCustomObject]@{ Id = 9; Name = "AdbeRdr11000_en_US"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/APPS/AdbeRdr11000_en_US.exe"; File = "AdbeRdr11000_en_US.exe"; Silent = "/S" },
-        [PSCustomObject]@{ Id = 10; Name = "WinRAR7.10x64"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/APPS/WinRAR7.10x64.exe"; File = "WinRAR7.10x64.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 9; Name = "Adobe Reader 11"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/APPS/AdbeRdr11000_en_US.exe"; File = "AdbeRdr11000_en_US.exe"; Silent = "/S" },
+        [PSCustomObject]@{ Id = 10; Name = "WinRAR7 10x64"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/APPS/WinRAR7.10x64.exe"; File = "WinRAR7.10x64.exe"; Silent = "/S" },
         
         # --- PORTABLE APPS (WUB) ---
         [PSCustomObject]@{ Id = 11; Name = "Windows Update Blocker v1.8"; WingetID = ""; Url = "https://github.com/banliecomputing/install-center/releases/download/V1.8/Wub_x64.exe"; File = "Wub_x64.exe"; Silent = "PORTABLE" }
