@@ -57,6 +57,7 @@ function Test-Winget {
 try{
     $modules=@(
         "windows-tools.ps1",
+        "Auto-Driver-Updater-W10.ps1",
         "apps.ps1",
         "tweaks.ps1",
         "online-scripts.ps1",
