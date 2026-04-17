@@ -72,7 +72,10 @@ try{
         irm "$base/$m?t=$([guid]::NewGuid())" | iex
     }
 } catch {
-    Write-Host "Module load failed. Pastikan koneksi internet aktif." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "[!] MODULE LOAD FAILED PADA FILE: $m" -ForegroundColor Red
+    Write-Host "Alasan Error: $($_.Exception.Message)" -ForegroundColor DarkGray
+    Write-Host "Solusi: Pastikan file '$m' benar-benar ada di GitHub dan huruf besar/kecilnya sama persis!" -ForegroundColor Yellow
     PauseMenu
     return
 }
