@@ -20,7 +20,7 @@ function Show-Header {
     Write-Host "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝╚══════╝" -ForegroundColor Cyan
 
     Write-Host ""
-    Write-Host "BanlieComp @ 2026 v.1.5" -ForegroundColor Yellow
+    Write-Host "BanlieComp @ 2026 v.1.4" -ForegroundColor Yellow
     Write-Host ""
 
     try {
@@ -68,9 +68,8 @@ try{
     )
 
     foreach($m in $modules){
-        # Dalam praktiknya ini memanggil modul dari internet. 
-        # Bypass cache GitHub dengan menambahkan ?t=$([guid]::NewGuid())
-        irm "$base/$m?t=$([guid]::NewGuid())" | iex
+        # URL murni tanpa cache bypass agar tidak terkena 404 dari GitHub
+        irm "$base/$m" | iex
     }
 } catch {
     Write-Host ""
