@@ -2,16 +2,6 @@
 # AUTO DRIVER UPDATER v4.0 (Interactive Menu)
 # ========================================
 
-# Set Window Title & Timezone
-Set-TimeZone -Id "SE Asia Standard Time"
-Start-Sleep -Seconds 1
-$host.ui.RawUI.WindowTitle = "Auto Driver Updater v4.0 (Interactive) for Foxway A/S by Johny Bartholdy Jensen [$(Get-Date -Format 'HH:mm')]"
-
-# Set Brightness to 100%
-$monitor = Get-CimInstance -Namespace root/wmi -ClassName WmiMonitorBrightnessMethods -ErrorAction SilentlyContinue
-if ($monitor) { Invoke-CimMethod -InputObject $monitor -MethodName WmiSetBrightness -Arguments @{Timeout=1; Brightness=100} -ErrorAction SilentlyContinue }
-Clear-Host
-
 # ================= UI & TEXT FUNCTIONS =================
 function text_time { Write-Host "`nMemperbarui waktu sistem..." -ForegroundColor Green }
 function text_search { Write-Host "`nMencari pembaruan driver (Mohon tunggu)..." -ForegroundColor Cyan }
@@ -46,7 +36,17 @@ function test_network {
 }
 
 # ================= START SCRIPT / MAIN FUNCTION =================
-function Show-DriverUpdater {
+function global:Show-DriverUpdater {
+
+    # Set Window Title, Timezone & Brightness (Dipindahkan ke dalam fungsi agar aktif saat menu dipilih)
+    try { Set-TimeZone -Id "SE Asia Standard Time" -ErrorAction SilentlyContinue } catch {}
+    Start-Sleep -Seconds 1
+    $host.ui.RawUI.WindowTitle = "Auto Driver Updater v4.0 (Interactive) for Foxway A/S by Johny Bartholdy Jensen [$(Get-Date -Format 'HH:mm')]"
+    
+    $monitor = Get-CimInstance -Namespace root/wmi -ClassName WmiMonitorBrightnessMethods -ErrorAction SilentlyContinue
+    if ($monitor) { Invoke-CimMethod -InputObject $monitor -MethodName WmiSetBrightness -Arguments @{Timeout=1; Brightness=100} -ErrorAction SilentlyContinue }
+    Clear-Host
+
     # Predefined Variables
     $rebootrequired = $false
 
@@ -55,7 +55,7 @@ function Show-DriverUpdater {
         test_network
     } catch {
         Write-Host "Dibatalkan: $($_.Exception.Message)" -ForegroundColor Red
-        Pause
+        PauseMenu
         return # Kembali ke menu utama Install Center
     }
 
@@ -239,5 +239,5 @@ function Show-DriverUpdater {
     }
 
     Write-Host "`nProses selesai."
-    Pause
+    PauseMenu
 }
