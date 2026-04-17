@@ -32,6 +32,7 @@ function Show-Tweaks {
         Write-Host "===== EXPLORER =====" -ForegroundColor Yellow
         Write-Host "8. Show Hidden Files"
         Write-Host "9. Disable Shortcut Arrow (Butuh Admin)"
+        Write-Host "10. Clear Recent Files & Explorer History"
         Write-Host ""
         Write-Host "0. Back"
         Write-Host ""
@@ -130,6 +131,27 @@ function Show-Tweaks {
                 } catch {
                     Write-Host "Gagal. Pastikan Anda menjalankan ini sebagai Administrator." -ForegroundColor Red
                 }
+                PauseMenu
+            }
+
+            "10" {
+                Show-Header
+                Write-Host "Clearing Recent Files & Explorer History..." -ForegroundColor Yellow
+                
+                # Menghapus file Recent Docs
+                Remove-Item -Path "$env:APPDATA\Microsoft\Windows\Recent\*" -Force -Recurse -ErrorAction SilentlyContinue
+                
+                # Menghapus Quick Access / Automatic Destinations
+                Remove-Item -Path "$env:APPDATA\Microsoft\Windows\Recent\AutomaticDestinations\*" -Force -Recurse -ErrorAction SilentlyContinue
+                Remove-Item -Path "$env:APPDATA\Microsoft\Windows\Recent\CustomDestinations\*" -Force -Recurse -ErrorAction SilentlyContinue
+                
+                # Menghapus riwayat Run Dialog
+                Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" -Name "*" -ErrorAction SilentlyContinue
+                
+                # Menghapus Typed Paths (Path folder yang diketik di URL bar File Explorer)
+                Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\TypedPaths" -Name "url*" -ErrorAction SilentlyContinue
+                
+                Write-Host "History dan Cache Explorer berhasil dihapus!" -ForegroundColor Green
                 PauseMenu
             }
 
