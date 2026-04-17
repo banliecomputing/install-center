@@ -38,10 +38,9 @@ function test_network {
 # ================= START SCRIPT / MAIN FUNCTION =================
 function global:Show-DriverUpdater {
 
-    # Set Window Title, Timezone & Brightness (Dipindahkan ke dalam fungsi agar aktif saat menu dipilih)
+    # Set Timezone & Brightness (Dipindahkan ke dalam fungsi agar aktif saat menu dipilih)
     try { Set-TimeZone -Id "SE Asia Standard Time" -ErrorAction SilentlyContinue } catch {}
     Start-Sleep -Seconds 1
-    $host.ui.RawUI.WindowTitle = "Auto Driver Updater v4.0 (Interactive) for Foxway A/S by Johny Bartholdy Jensen [$(Get-Date -Format 'HH:mm')]"
     
     $monitor = Get-CimInstance -Namespace root/wmi -ClassName WmiMonitorBrightnessMethods -ErrorAction SilentlyContinue
     if ($monitor) { Invoke-CimMethod -InputObject $monitor -MethodName WmiSetBrightness -Arguments @{Timeout=1; Brightness=100} -ErrorAction SilentlyContinue }
