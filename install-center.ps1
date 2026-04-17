@@ -20,7 +20,7 @@ function Show-Header {
     Write-Host "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝╚══════╝" -ForegroundColor Cyan
 
     Write-Host ""
-    Write-Host "BanlieComp @ 2026 v.1.4" -ForegroundColor Yellow
+    Write-Host "BanlieComp @ 2026 v.1.5" -ForegroundColor Yellow
     Write-Host ""
 
     try {
@@ -96,7 +96,6 @@ function Show-MainMenu {
         Write-Host "3. Tweaks & Optimization"
         Write-Host "4. Online Scripts"
         Write-Host "5. Hardware Diagnostic"
-        Write-Host "6. Auto Driver Updater"
         Write-Host ""
         Write-Host "0. Exit"
         Write-Host ""
@@ -109,7 +108,6 @@ function Show-MainMenu {
             "3"{ try { Show-Tweaks } catch { Write-Host "Modul belum tersedia." -ForegroundColor Red; PauseMenu } }
             "4"{ try { Show-OnlineScripts } catch { Write-Host "Modul belum tersedia." -ForegroundColor Red; PauseMenu } }
             "5"{ try { Show-Diagnostic } catch { Write-Host "Modul belum tersedia." -ForegroundColor Red; PauseMenu } }
-            "6"{ try { Show-DriverUpdater } catch { Write-Host "Modul belum tersedia." -ForegroundColor Red; PauseMenu } }
             "0"{ return }
         }
     }
