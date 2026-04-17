@@ -20,7 +20,7 @@ function Show-Header {
     Write-Host "╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚═╝╚══════╝" -ForegroundColor Cyan
 
     Write-Host ""
-    Write-Host "BanlieComp @ 2026 v.1.4" -ForegroundColor Yellow
+    Write-Host "BanlieComp @ 2026 v.1.5" -ForegroundColor Yellow
     Write-Host ""
 
     try {
@@ -55,21 +55,28 @@ function Test-Winget {
 # ================= MODULE LOADER =================
 
 try{
+    # Memaksa penggunaan TLS 1.2 untuk menghindari pemblokiran koneksi oleh GitHub
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
     $modules=@(
         "windows-tools.ps1",
         "apps.ps1",
         "tweaks.ps1",
         "online-scripts.ps1",
-        "diagnostic.ps1"
+        "diagnostic.ps1",
+        "Auto-Driver-Updater-W10.ps1" # Ditambahkan agar fungsi Show-DriverUpdater bisa dipanggil
     )
 
     foreach($m in $modules){
         # Dalam praktiknya ini memanggil modul dari internet. 
-        # Untuk pengujian lokal, Anda bisa menggantinya dengan pemanggilan file lokal (misal: . .\modules\$m)
-        irm "$base/$m" | iex
+        # Bypass cache GitHub dengan menambahkan ?t=$([guid]::NewGuid())
+        irm "$base/$m?t=$([guid]::NewGuid())" | iex
     }
 } catch {
-    Write-Host "Module load failed. Pastikan koneksi internet aktif." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "[!] GAGAL MEMUAT MODUL: $m" -ForegroundColor Red
+    Write-Host "Alasan Error: $($_.Exception.Message)" -ForegroundColor DarkGray
+    Write-Host "Solusi: Pastikan file '$m' benar-benar ada di GitHub dan namanya persis sama (Case Sensitive)." -ForegroundColor Yellow
     PauseMenu
     return
 }
@@ -90,6 +97,7 @@ function Show-MainMenu {
         Write-Host "3. Tweaks & Optimization"
         Write-Host "4. Online Scripts"
         Write-Host "5. Hardware Diagnostic"
+        Write-Host "6. Auto Driver Updater"
         Write-Host ""
         Write-Host "0. Exit"
         Write-Host ""
@@ -102,6 +110,7 @@ function Show-MainMenu {
             "3"{ try { Show-Tweaks } catch { Write-Host "Modul belum tersedia." -ForegroundColor Red; PauseMenu } }
             "4"{ try { Show-OnlineScripts } catch { Write-Host "Modul belum tersedia." -ForegroundColor Red; PauseMenu } }
             "5"{ try { Show-Diagnostic } catch { Write-Host "Modul belum tersedia." -ForegroundColor Red; PauseMenu } }
+            "6"{ try { Show-DriverUpdater } catch { Write-Host "Modul belum tersedia." -ForegroundColor Red; PauseMenu } }
             "0"{ return }
         }
     }
