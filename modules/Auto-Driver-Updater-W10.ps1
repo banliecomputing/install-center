@@ -1,6 +1,5 @@
 # ========================================
 # AUTO DRIVER UPDATER v4.0 (Interactive Menu)
-# (Disimpan sebagai Auto-Driver-Updater-W10.ps1)
 # ========================================
 
 # Set Window Title & Timezone
@@ -47,7 +46,7 @@ function test_network {
 }
 
 # ================= START SCRIPT / MAIN FUNCTION =================
-function Show-Diagnostic {
+function Show-DriverUpdater {
     # Predefined Variables
     $rebootrequired = $false
 
