@@ -15,22 +15,18 @@ function Show-OnlineScripts {
             Action = { irm "https://christitus.com/win" | iex }
         }
         3 = @{
-            Name = "Auto Driver Updater (Local Module)"
-            Action = { Show-DriverUpdater }
-        }
-        4 = @{
             Name = "Windows Debloat Tool (Raphi)"
             Action = { irm "https://debloat.raphi.re/" | iex }
         }
-        5 = @{
+        4 = @{
             Name = "Office Installer Tool"
             Action = { irm "https://officetool.plus/otool/otool.ps1" | iex }
         }
-        6 = @{
+        5 = @{
             Name = "Reset Windows Update"
             Action = { irm "https://raw.githubusercontent.com/wureset-tools/windows-update-reset/main/reset.ps1" | iex }
         }
-        7 = @{
+        6 = @{
             Name = "Microsoft PC Manager (Buka di Browser)"
             Action = { Start-Process "https://pcmanager.microsoft.com" }
         }
