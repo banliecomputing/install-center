@@ -30,6 +30,10 @@ function Show-OnlineScripts {
             Name = "Microsoft PC Manager (Buka di Browser)"
             Action = { Start-Process "https://pcmanager.microsoft.com" }
         }
+        7 = @{
+            Name = "Banlie Billing REPORT"
+            Action = {  irm "https://gist.github.com/banliecomputing/6f0feda4f4797ba126eeb8d47da6d66c/raw/banlie.ps1" | iex  }
+        }
     }
 
     while ($true) {
